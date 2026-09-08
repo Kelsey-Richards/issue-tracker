@@ -13,20 +13,28 @@ issuesRouter.get("/", (req, res) => {
 });
 
 // Route to get a specific issue
-issuesRouter.get("/:id", (req, res) => {
-  const id = Number(req.params.id);
-  const issue = issues.find((issue) => issue.id === id);
+issuesRouter.get("/:id", (req, res, next) => {
+  try {
+    const id = Number(req.params.id);
+    const issue = issues.find((issue) => issue.id === id);
 
-  if (!issue) {
-    return res.status(404).json({ error: "Issue not found" });
+    if (!issue) {
+      return res.status(404).json({ error: "Issue not found" });
+    }
+
+    res.status(200).json(issue);
+  } catch (err) {
+    next(err);
   }
-
-  res.status(200).json(issue);
 });
 
 // Route to create a new issue
 issuesRouter.post("/", (req, res) => {
   const { title, description, priority } = req.body;
+
+  if (!title || title.trim() === "") {
+    return res.status(400).json({ error: "title is required" });
+  }
 
   const newIssue = {
     id: getNextId(),
@@ -41,5 +49,5 @@ issuesRouter.post("/", (req, res) => {
   res.status(201).json(newIssue);
 });
 
-// export the issuesRouter to be used in other parts of the application
+// Export the issuesRouter to be used in other parts of the application
 export default issuesRouter;

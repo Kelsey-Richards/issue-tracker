@@ -19,10 +19,12 @@
   },
   "homepage": "https://github.com/Kelsey-Richards/issue-tracker#readme",
   "dependencies": {
+    "debug": "^4.4.3",
     "express": "^5.2.1"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@types/debug": "^4.1.13",
     "@types/express": "^5.0.6",
     "@types/node": "^26.4.1",
     "eslint": "^10.10.0",
