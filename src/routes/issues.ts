@@ -7,6 +7,8 @@ import {
   listIssues,
   getIssueById,
   createIssue,
+  updateIssue,
+  deleteIssue,
 } from "../controllers/issuesController";
 
 const issuesRouter = Router();
@@ -19,6 +21,12 @@ issuesRouter.get("/:id", getIssueById);
 
 // Route to create a new issue
 issuesRouter.post("/", createIssue);
+
+// Route to update an existing issue
+issuesRouter.patch("/:id", updateIssue);
+  
+// Route to delete an existing issue
+issuesRouter.delete("/:id", deleteIssue);
 
 // Export the issuesRouter to be used in other parts of the application
 export default issuesRouter;

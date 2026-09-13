@@ -28,7 +28,7 @@ app.get("/health", (req, res) => {
 app.use("/issues", issuesRouter);
 app.use(errorHandler);
 
-const PORT = 3000;
+const PORT = Number(process.env.PORT) || 3000;
 
 // Start the server and listen on the specified port
 app.listen(PORT, () => {

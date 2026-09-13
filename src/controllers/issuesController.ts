@@ -11,11 +11,7 @@ export function listIssues(req: Request, res: Response) {
 }
 
 // Controller function to get a specific issue by ID
-export function getIssueById(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
+export function getIssueById(req: Request, res: Response, next: NextFunction) {
   try {
     const id = Number(req.params.id);
     const issue = issues.find((issue) => issue.id === id);
@@ -49,4 +45,46 @@ export function createIssue(req: Request, res: Response) {
   issues.push(newIssue);
 
   res.status(201).json(newIssue);
+}
+
+// Controller function to update an existing issue
+export function updateIssue(req: Request, res: Response) {
+  const id = Number(req.params.id);
+  const issue = issues.find((issue) => issue.id === id);
+
+  if (!issue) {
+    return res.status(404).json({ error: "Issue not found" });
+  }
+
+  if (req.body.title !== undefined) {
+    issue.title = req.body.title;
+  }
+
+  if (req.body.description !== undefined) {
+    issue.description = req.body.description;
+  }
+
+  if (req.body.status !== undefined) {
+    issue.status = req.body.status;
+  }
+
+  if (req.body.priority !== undefined) {
+    issue.priority = req.body.priority;
+  }
+
+  res.status(200).json(issue);
+}
+
+// Controller function to delete an existing issue
+export function deleteIssue(req: Request, res: Response) {
+  const id = Number(req.params.id);
+  const issueIndex = issues.findIndex((issue) => issue.id === id);
+
+  if (issueIndex === -1) {
+    return res.status(404).json({ error: "Issue not found" });
+  }
+
+  issues.splice(issueIndex, 1);
+
+  res.status(204).send();
 }
