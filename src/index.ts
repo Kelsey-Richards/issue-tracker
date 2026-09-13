@@ -5,13 +5,13 @@
 import express from "express";
 
 // Import the issuesRouter from the routes directory to handle issue-related routes
-import issuesRouter from "./routes/issues";
+import issuesRouter from "./routes/issues.js";
 
 // Import the requestLogger middleware to log incoming HTTP requests
-import { requestLogger } from "./middleware/logger";
+import { requestLogger } from "./middleware/logger.js";
 
 // Import the errorHandler middleware to handle errors in the application
-import { errorHandler } from "./middleware/errorHandler";
+import { errorHandler } from "./middleware/errorHandler.js";
 
 const app = express();
 

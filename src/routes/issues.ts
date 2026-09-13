@@ -9,7 +9,7 @@ import {
   createIssue,
   updateIssue,
   deleteIssue,
-} from "../controllers/issuesController";
+} from "../controllers/issuesController.js";
 
 const issuesRouter = Router();
 

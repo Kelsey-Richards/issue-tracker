@@ -3,7 +3,7 @@
 
 // Controller for handling issues in the application
 import { Request, Response, NextFunction } from "express";
-import { issues, getNextId } from "../data/issues";
+import { issues, getNextId } from "../data/issues.js";
 
 // Controller function to list all issues
 export function listIssues(req: Request, res: Response) {

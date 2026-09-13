@@ -2,7 +2,7 @@
 // Date: 9/6/2026
 
 // This file contains a list of issues for the issue tracker application.
-import { Issue } from "../models/Issue";
+import { Issue } from "../models/Issue.js";
 
 export const issues: Issue[] = [
   {
