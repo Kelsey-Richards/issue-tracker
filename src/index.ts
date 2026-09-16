@@ -19,6 +19,10 @@ const app = express();
 app.use(express.json());
 app.use(requestLogger);
 
+app.get("/", (req, res) => {
+  res.json({ message: "Issue Tracker API is running" });
+});
+
 // Define a health check endpoint that responds with a status of "ok" when accessed
 app.get("/health", (req, res) => {
   res.status(200).json({ status: "ok" });
