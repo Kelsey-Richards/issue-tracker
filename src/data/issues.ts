@@ -1,7 +1,7 @@
 // Student Name: Kelsey Richards
-// Date: 9/6/2026
+// Date: 9/26/2026
 
-// defines the Issue interface for the issue tracker application.
+// Defines what an issue looks like.
 export interface Issue {
   title: string;
   description: string;
