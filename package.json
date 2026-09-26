@@ -22,6 +22,7 @@
   "homepage": "https://github.com/Kelsey-Richards/issue-tracker#readme",
   "dependencies": {
     "debug": "^4.4.3",
+    "dotenv": "^18.0.4",
     "express": "^5.2.1",
     "mongodb": "^7.6.0"
   },

@@ -3,18 +3,42 @@
 
 // Controller for handling issues in the application
 import { Request, Response, NextFunction } from "express";
-import { issues, getNextId } from "../data/issues.js";
+import { ObjectId } from "mongodb";
+import { getIssuesCollection } from "../db.js";
 
-// Controller function to list all issues
-export function listIssues(req: Request, res: Response) {
-  res.status(200).json(issues);
+// List all issues
+export async function listIssues(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const issues = getIssuesCollection();
+    const issueList = await issues.find({}).toArray();
+
+    res.status(200).json(issueList);
+  } catch (err) {
+    next(err);
+  }
 }
 
-// Controller function to get a specific issue by ID
-export function getIssueById(req: Request, res: Response, next: NextFunction) {
+// Get one issue by ID
+export async function getIssueById(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  let objectId: ObjectId;
+
   try {
-    const id = Number(req.params.id);
-    const issue = issues.find((issue) => issue.id === id);
+    objectId = new ObjectId(req.params.id as string);
+  } catch {
+    return res.status(400).json({ error: "Invalid issue id" });
+  }
+
+  try {
+    const issues = getIssuesCollection();
+    const issue = await issues.findOne({ _id: objectId });
 
     if (!issue) {
       return res.status(404).json({ error: "Issue not found" });
@@ -26,65 +50,103 @@ export function getIssueById(req: Request, res: Response, next: NextFunction) {
   }
 }
 
-// Controller function to create a new issue
-export function createIssue(req: Request, res: Response) {
-  const { title, description, priority } = req.body;
+// Create a new issue
+export async function createIssue(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const { title, description, priority } = req.body;
 
-  if (!title || title.trim() === "") {
-    return res.status(400).json({ error: "title is required" });
+    if (!title || title.trim() === "") {
+      return res.status(400).json({ error: "title is required" });
+    }
+
+    const newIssue = {
+      title,
+      description,
+      status: "open" as const,
+      priority: priority || "medium",
+    };
+
+    const issues = getIssuesCollection();
+    const result = await issues.insertOne(newIssue);
+
+    res.status(201).json({
+      _id: result.insertedId,
+      ...newIssue,
+    });
+  } catch (err) {
+    next(err);
   }
-
-  const newIssue = {
-    id: getNextId(),
-    title,
-    description,
-    status: "open" as const,
-    priority: priority || "medium",
-  };
-
-  issues.push(newIssue);
-
-  res.status(201).json(newIssue);
 }
 
-// Controller function to update an existing issue
-export function updateIssue(req: Request, res: Response) {
-  const id = Number(req.params.id);
-  const issue = issues.find((issue) => issue.id === id);
+// Update an issue
+export async function updateIssue(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  let objectId: ObjectId;
 
-  if (!issue) {
-    return res.status(404).json({ error: "Issue not found" });
+  try {
+    objectId = new ObjectId(req.params.id as string);
+  } catch {
+    return res.status(400).json({ error: "Invalid issue id" });
   }
 
-  if (req.body.title !== undefined) {
-    issue.title = req.body.title;
-  }
+  try {
+    const issues = getIssuesCollection();
 
-  if (req.body.description !== undefined) {
-    issue.description = req.body.description;
-  }
+    const updates = {
+      ...(req.body.title !== undefined && { title: req.body.title }),
+      ...(req.body.description !== undefined && {
+        description: req.body.description,
+      }),
+      ...(req.body.status !== undefined && { status: req.body.status }),
+      ...(req.body.priority !== undefined && { priority: req.body.priority }),
+    };
 
-  if (req.body.status !== undefined) {
-    issue.status = req.body.status;
-  }
+    const result = await issues.updateOne({ _id: objectId }, { $set: updates });
 
-  if (req.body.priority !== undefined) {
-    issue.priority = req.body.priority;
-  }
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ error: "Issue not found" });
+    }
 
-  res.status(200).json(issue);
+    const updatedIssue = await issues.findOne({ _id: objectId });
+
+    res.status(200).json(updatedIssue);
+  } catch (err) {
+    next(err);
+  }
 }
 
-// Controller function to delete an existing issue
-export function deleteIssue(req: Request, res: Response) {
-  const id = Number(req.params.id);
-  const issueIndex = issues.findIndex((issue) => issue.id === id);
+// Delete an issue
+export async function deleteIssue(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  let objectId: ObjectId;
 
-  if (issueIndex === -1) {
-    return res.status(404).json({ error: "Issue not found" });
+  try {
+    objectId = new ObjectId(req.params.id as string);
+  } catch {
+    return res.status(400).json({ error: "Invalid issue id" });
   }
 
-  issues.splice(issueIndex, 1);
+  try {
+    const issues = getIssuesCollection();
 
-  res.status(204).send();
+    const result = await issues.deleteOne({ _id: objectId });
+
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ error: "Issue not found" });
+    }
+
+    res.status(204).send();
+  } catch (err) {
+    next(err);
+  }
 }
