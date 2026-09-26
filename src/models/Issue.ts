@@ -3,7 +3,6 @@
 
 // defines the Issue interface for the issue tracker application.
 export interface Issue {
-  id: number;
   title: string;
   description: string;
   status: "open" | "in-progress" | "closed";

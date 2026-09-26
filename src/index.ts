@@ -1,40 +1,48 @@
 // Student Name: Kelsey Richards
-// Date: 9/6/2026
+// Date: 9/25/2026
 
-// This is a simple Express server that responds to health check requests.
+import "dotenv/config";
 import express from "express";
-
-// Import the issuesRouter from the routes directory to handle issue-related routes
 import issuesRouter from "./routes/issues.js";
-
-// Import the requestLogger middleware to log incoming HTTP requests
 import { requestLogger } from "./middleware/logger.js";
-
-// Import the errorHandler middleware to handle errors in the application
 import { errorHandler } from "./middleware/errorHandler.js";
+import { getDb } from "./db.js";
 
 const app = express();
+const PORT = Number(process.env.PORT) || 3000;
 
-// Use the express.json() middleware to parse incoming JSON requests
+// Set up middleware
 app.use(express.json());
 app.use(requestLogger);
 
+// Main route
 app.get("/", (req, res) => {
   res.json({ message: "Issue Tracker API is running" });
 });
 
-// Define a health check endpoint that responds with a status of "ok" when accessed
+// Health check route
 app.get("/health", (req, res) => {
   res.status(200).json({ status: "ok" });
 });
 
-// Use the issuesRouter for all routes starting with "/issues" and the errorHandler for handling errors
+// Issue routes
 app.use("/issues", issuesRouter);
+
+// Error handling
 app.use(errorHandler);
 
-const PORT = Number(process.env.PORT) || 3000;
+// Connect to MongoDB, then start the server
+async function startServer() {
+  try {
+    await getDb();
 
-// Start the server and listen on the specified port
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error("Failed to connect to MongoDB:", error);
+    process.exit(1);
+  }
+}
+
+startServer();
