@@ -3,7 +3,7 @@
 
 // function to connect to the MongoDB database and return the database instance
 import { Db, MongoClient } from "mongodb";
-import { Issue } from "./models/Issue.js";
+import { Issue } from "./data/issues.js";
 
 let db: Db;
 
