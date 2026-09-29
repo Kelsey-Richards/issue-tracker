@@ -5,6 +5,7 @@
 import { Request, Response, NextFunction } from "express";
 import { ObjectId } from "mongodb";
 import { getIssuesCollection } from "../db.js";
+import { CreateIssueInput } from "../schemas/issueSchemas.js";
 
 // List all issues
 export async function listIssues(
@@ -57,17 +58,18 @@ export async function createIssue(
   next: NextFunction,
 ) {
   try {
-    const { title, description, priority } = req.body;
-
-    if (!title || title.trim() === "") {
-      return res.status(400).json({ error: "title is required" });
-    }
+    // The request body has already been validated by Zod
+    const input = req.body as CreateIssueInput;
 
     const newIssue = {
-      title,
-      description,
+      ...input,
       status: "open" as const,
-      priority: priority || "medium",
+      classification: "unclassified" as const,
+      createdOn: new Date(),
+      comments: [],
+      testCases: [],
+      timeLog: [],
+      // author will be added on Day 25
     };
 
     const issues = getIssuesCollection();
@@ -126,7 +128,7 @@ export async function updateIssue(
 export async function deleteIssue(
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   let objectId: ObjectId;
 
