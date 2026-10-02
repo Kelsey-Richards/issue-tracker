@@ -10,6 +10,12 @@ import {
   updateIssue,
   deleteIssue,
 } from "../controllers/issuesController.js";
+import { validateBody } from "../middleware/validate.js";
+import {
+  createIssueSchema,
+  updateIssueSchema,
+} from "../schemas/issueSchemas.js";
+import { attachCurrentUser } from "../middleware/currentUser.js";
 
 const issuesRouter = Router();
 
@@ -20,11 +26,16 @@ issuesRouter.get("/", listIssues);
 issuesRouter.get("/:id", getIssueById);
 
 // Route to create a new issue
-issuesRouter.post("/", createIssue);
+issuesRouter.post(
+  "/",
+  attachCurrentUser,
+  validateBody(createIssueSchema),
+  createIssue,
+);
 
 // Route to update an existing issue
-issuesRouter.patch("/:id", updateIssue);
-  
+issuesRouter.patch("/:id", validateBody(updateIssueSchema), updateIssue);
+
 // Route to delete an existing issue
 issuesRouter.delete("/:id", deleteIssue);
 

@@ -37,3 +37,22 @@
 - PATCH successfully updated the test issue using MongoDB.
 - DELETE successfully removed the test issue.
 - Data is now stored in MongoDB instead of the old in-memory issues array.
+
+## Lab 04-01 Zod Validation Test Results
+
+| Route | Body | Expected Status | Actual Status | Result |
+|---|---|---:|---:|---|
+| POST /issues | {"title":"Module 4 Test Issue","description":"Testing Zod validation","stepsToReproduce":"Create an issue using the API","priority":"medium"} | 201 | 201 | Pass |
+| POST /issues | Missing title | 400 | 400 | Pass |
+| POST /issues | Includes fake/custom author | 201 | 201 | Pass |
+| PATCH /issues/6ac01df40a347287faf5cfa6 | {"priority":"high"} | 200 | 200 | Pass |
+| PATCH /issues/6ac01df40a347287faf5cfa6 | {"priority":"urgent"} | 400 | 400 | Pass |
+
+### Notes
+
+- Zod validation correctly accepted a valid POST request.
+- A POST request missing the required title field returned 400 ValidationFailed.
+- A client-supplied author was ignored, and the server used req.user instead.
+- PATCH successfully updated only the priority field while keeping the other issue data unchanged.
+- An invalid PATCH priority of "urgent" returned 400 ValidationFailed.
+- TypeScript compiled successfully with no errors using `npx tsc --noEmit`.
