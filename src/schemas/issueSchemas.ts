@@ -13,3 +13,9 @@ export const createIssueSchema = z.object({
 
 // Creates the TypeScript type directly from the Zod schema
 export type CreateIssueInput = z.infer<typeof createIssueSchema>;
+
+// Makes all create issue fields optional for updating an issue
+export const updateIssueSchema = createIssueSchema.partial();
+
+// Creates the TypeScript type for issue updates
+export type UpdateIssueInput = z.infer<typeof updateIssueSchema>;

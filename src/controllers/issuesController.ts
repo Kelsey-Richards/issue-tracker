@@ -5,7 +5,7 @@
 import { Request, Response, NextFunction } from "express";
 import { ObjectId } from "mongodb";
 import { getIssuesCollection } from "../db.js";
-import { CreateIssueInput } from "../schemas/issueSchemas.js";
+import { CreateIssueInput, UpdateIssueInput } from "../schemas/issueSchemas.js";
 
 // List all issues
 export async function listIssues(
@@ -65,11 +65,11 @@ export async function createIssue(
       ...input,
       status: "open" as const,
       classification: "unclassified" as const,
+      author: req.user,
       createdOn: new Date(),
       comments: [],
       testCases: [],
       timeLog: [],
-      // author will be added on Day 25
     };
 
     const issues = getIssuesCollection();
@@ -101,14 +101,8 @@ export async function updateIssue(
   try {
     const issues = getIssuesCollection();
 
-    const updates = {
-      ...(req.body.title !== undefined && { title: req.body.title }),
-      ...(req.body.description !== undefined && {
-        description: req.body.description,
-      }),
-      ...(req.body.status !== undefined && { status: req.body.status }),
-      ...(req.body.priority !== undefined && { priority: req.body.priority }),
-    };
+    // The request body has already been validated by Zod
+    const updates = req.body as UpdateIssueInput;
 
     const result = await issues.updateOne({ _id: objectId }, { $set: updates });
 
