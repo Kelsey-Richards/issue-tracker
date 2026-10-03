@@ -5,7 +5,24 @@
 import { Request, Response, NextFunction } from "express";
 import { ObjectId } from "mongodb";
 import { getIssuesCollection } from "../db.js";
-import { CreateIssueInput, UpdateIssueInput } from "../schemas/issueSchemas.js";
+
+import {
+  CreateIssueInput,
+  UpdateIssueInput,
+  SetStatusInput,
+  ClassifyIssueInput,
+  AssignIssueInput,
+} from "../schemas/issueSchemas.js";
+
+// Converts the id to an ObjectId
+function parseId(req: Request, res: Response): ObjectId | undefined {
+  try {
+    return new ObjectId(req.params.id as string);
+  } catch {
+    res.status(400).json({ error: "Invalid issue id" });
+    return undefined;
+  }
+}
 
 // List all issues
 export async function listIssues(
@@ -29,13 +46,9 @@ export async function getIssueById(
   res: Response,
   next: NextFunction,
 ) {
-  let objectId: ObjectId;
+  const objectId = parseId(req, res);
 
-  try {
-    objectId = new ObjectId(req.params.id as string);
-  } catch {
-    return res.status(400).json({ error: "Invalid issue id" });
-  }
+  if (!objectId) return;
 
   try {
     const issues = getIssuesCollection();
@@ -45,7 +58,7 @@ export async function getIssueById(
       return res.status(404).json({ error: "Issue not found" });
     }
 
-    res.status(200).json(issue);
+    res.json(issue);
   } catch (err) {
     next(err);
   }
@@ -58,7 +71,7 @@ export async function createIssue(
   next: NextFunction,
 ) {
   try {
-    // The request body has already been validated by Zod
+    // Body was already checked by Zod
     const input = req.body as CreateIssueInput;
 
     const newIssue = {
@@ -101,7 +114,7 @@ export async function updateIssue(
   try {
     const issues = getIssuesCollection();
 
-    // The request body has already been validated by Zod
+    // Body was already checked by Zod
     const updates = req.body as UpdateIssueInput;
 
     const result = await issues.updateOne({ _id: objectId }, { $set: updates });
@@ -142,6 +155,103 @@ export async function deleteIssue(
     }
 
     res.status(204).send();
+  } catch (err) {
+    next(err);
+  }
+}
+
+// Change issue status
+export async function setIssueStatus(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  const objectId = parseId(req, res);
+
+  if (!objectId) return;
+
+  try {
+    const issues = getIssuesCollection();
+    const { status } = req.body as SetStatusInput;
+
+    const result = await issues.findOneAndUpdate(
+      { _id: objectId },
+      { $set: { status } },
+      { returnDocument: "after" },
+    );
+
+    if (!result) {
+      return res.status(404).json({ error: "Issue not found" });
+    }
+
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+}
+
+// Change issue classification
+export async function classifyIssue(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  const objectId = parseId(req, res);
+
+  if (!objectId) return;
+
+  try {
+    const issues = getIssuesCollection();
+    const { classification } = req.body as ClassifyIssueInput;
+
+    const result = await issues.findOneAndUpdate(
+      { _id: objectId },
+      { $set: { classification } },
+      { returnDocument: "after" },
+    );
+
+    if (!result) {
+      return res.status(404).json({ error: "Issue not found" });
+    }
+
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+}
+
+// Assign issue to a user
+export async function assignIssue(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  const objectId = parseId(req, res);
+
+  if (!objectId) return;
+
+  try {
+    const issues = getIssuesCollection();
+    const { userId, fullName } = req.body as AssignIssueInput;
+
+    const result = await issues.findOneAndUpdate(
+      { _id: objectId },
+      {
+        $set: {
+          assignedTo: {
+            userId,
+            fullName,
+          },
+        },
+      },
+      { returnDocument: "after" },
+    );
+
+    if (!result) {
+      return res.status(404).json({ error: "Issue not found" });
+    }
+
+    res.json(result);
   } catch (err) {
     next(err);
   }

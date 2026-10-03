@@ -9,11 +9,17 @@ import {
   createIssue,
   updateIssue,
   deleteIssue,
+  setIssueStatus,
+  classifyIssue,
+  assignIssue,
 } from "../controllers/issuesController.js";
 import { validateBody } from "../middleware/validate.js";
 import {
   createIssueSchema,
   updateIssueSchema,
+  setStatusSchema,
+  classifyIssueSchema,
+  assignIssueSchema,
 } from "../schemas/issueSchemas.js";
 import { attachCurrentUser } from "../middleware/currentUser.js";
 
@@ -35,6 +41,23 @@ issuesRouter.post(
 
 // Route to update an existing issue
 issuesRouter.patch("/:id", validateBody(updateIssueSchema), updateIssue);
+
+// Change status
+issuesRouter.patch(
+  "/:id/status",
+  validateBody(setStatusSchema),
+  setIssueStatus,
+);
+
+// Change classification
+issuesRouter.patch(
+  "/:id/classify",
+  validateBody(classifyIssueSchema),
+  classifyIssue,
+);
+
+// Assign issue
+issuesRouter.patch("/:id/assign", validateBody(assignIssueSchema), assignIssue);
 
 // Route to delete an existing issue
 issuesRouter.delete("/:id", deleteIssue);
