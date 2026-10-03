@@ -19,3 +19,29 @@ export const updateIssueSchema = createIssueSchema.partial();
 
 // Creates the TypeScript type for issue updates
 export type UpdateIssueInput = z.infer<typeof updateIssueSchema>;
+
+// Used when changing only an issue's status
+export const setStatusSchema = z.object({
+  status: z.enum(["open", "in-progress", "closed"]),
+});
+
+// Used when changing only an issue's classification
+export const classifyIssueSchema = z.object({
+  classification: z.enum([
+    "unclassified",
+    "approved",
+    "unapproved",
+    "duplicate",
+  ]),
+});
+
+// Used when assigning an issue to another user
+export const assignIssueSchema = z.object({
+  userId: z.string().min(1),
+  fullName: z.string().min(1),
+});
+
+// Types created from the schemas
+export type SetStatusInput = z.infer<typeof setStatusSchema>;
+export type ClassifyIssueInput = z.infer<typeof classifyIssueSchema>;
+export type AssignIssueInput = z.infer<typeof assignIssueSchema>;

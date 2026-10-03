@@ -56,3 +56,13 @@
 - PATCH successfully updated only the priority field while keeping the other issue data unchanged.
 - An invalid PATCH priority of "urgent" returned 400 ValidationFailed.
 - TypeScript compiled successfully with no errors using `npx tsc --noEmit`.
+
+## Lab 04-02 Test Results
+
+- PATCH /issues/:id/status with "in-progress" returned 200 and updated the status.
+- PATCH /issues/:id/status with "done" returned 400 ValidationFailed.
+- PATCH /issues/:id/classify with "approved" returned 200 and updated the classification.
+- PATCH /issues/:id/classify with "pending" returned 400 ValidationFailed.
+- PATCH /issues/:id/assign with userId and fullName returned 200 and updated assignedTo.
+- PATCH /issues/:id/assign without fullName returned 400 ValidationFailed.
+- npx tsc --noEmit completed with no errors.
