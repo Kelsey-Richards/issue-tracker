@@ -3,10 +3,11 @@
 
 import "dotenv/config";
 import express from "express";
-import issuesRouter from "./routes/issues.js";
-import { requestLogger } from "./middleware/logger.js";
-import { errorHandler } from "./middleware/errorHandler.js";
+
 import { getDb } from "./db.js";
+import { errorHandler } from "./middleware/errorHandler.js";
+import { requestLogger } from "./middleware/logger.js";
+import issuesRouter from "./routes/issues.js";
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;

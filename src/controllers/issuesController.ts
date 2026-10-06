@@ -2,16 +2,19 @@
 // Date: 9/8/2026
 
 // Controller for handling issues in the application
+import { randomUUID } from "crypto";
 import { Request, Response, NextFunction } from "express";
 import { ObjectId } from "mongodb";
-import { getIssuesCollection } from "../db.js";
 
+import { getIssuesCollection } from "../db.js";
 import {
   CreateIssueInput,
   UpdateIssueInput,
   SetStatusInput,
   ClassifyIssueInput,
   AssignIssueInput,
+  AddCommentInput,
+  SetTestCaseResultInput,
 } from "../schemas/issueSchemas.js";
 
 // Converts the id to an ObjectId
@@ -245,6 +248,146 @@ export async function assignIssue(
         },
       },
       { returnDocument: "after" },
+    );
+
+    if (!result) {
+      return res.status(404).json({ error: "Issue not found" });
+    }
+
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+}
+
+// Add a comment to an issue
+export async function addComment(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  const objectId = parseId(req, res);
+
+  if (!objectId) return;
+
+  try {
+    const issues = getIssuesCollection();
+    const { comment } = req.body as AddCommentInput;
+
+    // Create the new comment
+    const newComment = {
+      _id: randomUUID(),
+      userId: req.user.userId,
+      fullName: req.user.fullName,
+      comment,
+      createdOn: new Date(),
+    };
+
+    const result = await issues.findOneAndUpdate(
+      { _id: objectId },
+      { $push: { comments: newComment } },
+      { returnDocument: "after" },
+    );
+
+    if (!result) {
+      return res.status(404).json({ error: "Issue not found" });
+    }
+
+    res.status(201).json(result);
+  } catch (err) {
+    next(err);
+  }
+}
+
+// Delete a comment from an issue
+export async function deleteComment(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  const objectId = parseId(req, res);
+
+  if (!objectId) return;
+
+  try {
+    const issues = getIssuesCollection();
+    const commentId = req.params.commentId as string;
+
+    // Remove the matching comment
+    const result = await issues.findOneAndUpdate(
+      { _id: objectId },
+      { $pull: { comments: { _id: commentId } } },
+      { returnDocument: "after" },
+    );
+
+    if (!result) {
+      return res.status(404).json({ error: "Issue not found" });
+    }
+
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+}
+
+// Add a new test case to an issue
+export async function addTestCase(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  const objectId = parseId(req, res);
+
+  if (!objectId) return;
+
+  try {
+    const issues = getIssuesCollection();
+
+    const newTestCase = {
+      _id: randomUUID(),
+      userId: req.user.userId,
+      passed: false,
+      createdOn: new Date(),
+    };
+
+    const result = await issues.findOneAndUpdate(
+      { _id: objectId },
+      { $push: { testCases: newTestCase } },
+      { returnDocument: "after" },
+    );
+
+    if (!result) {
+      return res.status(404).json({ error: "Issue not found" });
+    }
+
+    res.status(201).json(result);
+  } catch (err) {
+    next(err);
+  }
+}
+
+// Mark a test case as passed or failed
+export async function setTestCaseResult(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  const objectId = parseId(req, res);
+
+  if (!objectId) return;
+
+  try {
+    const issues = getIssuesCollection();
+    const testCaseId = req.params.testCaseId as string;
+    const { passed } = req.body as SetTestCaseResultInput;
+
+    const result = await issues.findOneAndUpdate(
+      { _id: objectId },
+      { $set: { "testCases.$[tc].passed": passed } },
+      {
+        arrayFilters: [{ "tc._id": testCaseId }],
+        returnDocument: "after",
+      },
     );
 
     if (!result) {
