@@ -66,3 +66,12 @@
 - PATCH /issues/:id/assign with userId and fullName returned 200 and updated assignedTo.
 - PATCH /issues/:id/assign without fullName returned 400 ValidationFailed.
 - npx tsc --noEmit completed with no errors.
+
+## Lab 04-03 Test Results
+
+- POST /issues/:id/comments with a valid comment - PASS
+- POST /issues/:id/comments with an empty comment - PASS
+- DELETE /issues/:id/comments/:commentId - PASS
+- POST /issues/:id/test-cases - PASS
+- PATCH /issues/:id/test-cases/:testCaseId - PASS
+- npx tsc --noEmit - PASS

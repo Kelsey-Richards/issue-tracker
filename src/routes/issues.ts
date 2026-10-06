@@ -3,6 +3,7 @@
 
 // Routes for handling issues in the application
 import { Router } from "express";
+
 import {
   listIssues,
   getIssueById,
@@ -12,26 +13,34 @@ import {
   setIssueStatus,
   classifyIssue,
   assignIssue,
+  addComment,
+  deleteComment,
+  addTestCase,
+  setTestCaseResult,
 } from "../controllers/issuesController.js";
+
 import { validateBody } from "../middleware/validate.js";
+import { attachCurrentUser } from "../middleware/currentUser.js";
+
 import {
   createIssueSchema,
   updateIssueSchema,
   setStatusSchema,
   classifyIssueSchema,
   assignIssueSchema,
+  addCommentSchema,
+  setTestCaseResultSchema,
 } from "../schemas/issueSchemas.js";
-import { attachCurrentUser } from "../middleware/currentUser.js";
 
 const issuesRouter = Router();
 
-// Route to get all issues
+// Get all issues
 issuesRouter.get("/", listIssues);
 
-// Route to get a specific issue
+// Get one issue
 issuesRouter.get("/:id", getIssueById);
 
-// Route to create a new issue
+// Create an issue
 issuesRouter.post(
   "/",
   attachCurrentUser,
@@ -39,28 +48,49 @@ issuesRouter.post(
   createIssue,
 );
 
-// Route to update an existing issue
+// Update an issue
 issuesRouter.patch("/:id", validateBody(updateIssueSchema), updateIssue);
 
-// Change status
+// Change issue status
 issuesRouter.patch(
   "/:id/status",
   validateBody(setStatusSchema),
   setIssueStatus,
 );
 
-// Change classification
+// Change issue classification
 issuesRouter.patch(
   "/:id/classify",
   validateBody(classifyIssueSchema),
   classifyIssue,
 );
 
-// Assign issue
+// Assign an issue
 issuesRouter.patch("/:id/assign", validateBody(assignIssueSchema), assignIssue);
 
-// Route to delete an existing issue
+// Add a comment
+issuesRouter.post(
+  "/:id/comments",
+  attachCurrentUser,
+  validateBody(addCommentSchema),
+  addComment,
+);
+
+// Delete a comment
+issuesRouter.delete("/:id/comments/:commentId", deleteComment);
+
+// Add a test case
+issuesRouter.post("/:id/test-cases", attachCurrentUser, addTestCase);
+
+// Mark a test case as passed or failed
+issuesRouter.patch(
+  "/:id/test-cases/:testCaseId",
+  validateBody(setTestCaseResultSchema),
+  setTestCaseResult,
+);
+
+// Delete an issue
 issuesRouter.delete("/:id", deleteIssue);
 
-// Export the issuesRouter to be used in other parts of the application
+// Export the router
 export default issuesRouter;
