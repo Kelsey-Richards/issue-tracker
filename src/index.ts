@@ -1,36 +1,12 @@
 // Student Name: Kelsey Richards
-// Date: 9/25/2026
+// Date: 10/10/2026
 
 import "dotenv/config";
-import express from "express";
 
+import { app } from "./app.js";
 import { getDb } from "./db.js";
-import { errorHandler } from "./middleware/errorHandler.js";
-import { requestLogger } from "./middleware/logger.js";
-import issuesRouter from "./routes/issues.js";
 
-const app = express();
 const PORT = Number(process.env.PORT) || 3000;
-
-// Set up middleware
-app.use(express.json());
-app.use(requestLogger);
-
-// Main route
-app.get("/", (req, res) => {
-  res.json({ message: "Issue Tracker API is running" });
-});
-
-// Health check route
-app.get("/health", (req, res) => {
-  res.status(200).json({ status: "ok" });
-});
-
-// Issue routes
-app.use("/issues", issuesRouter);
-
-// Error handling
-app.use(errorHandler);
 
 // Connect to MongoDB, then start the server
 async function startServer() {
