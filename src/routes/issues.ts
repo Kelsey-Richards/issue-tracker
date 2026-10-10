@@ -19,7 +19,7 @@ import {
   setTestCaseResult,
 } from "../controllers/issuesController.js";
 
-import { validateBody } from "../middleware/validate.js";
+import { validateBody, validateQuery } from "../middleware/validate.js";
 import { attachCurrentUser } from "../middleware/currentUser.js";
 
 import {
@@ -30,12 +30,13 @@ import {
   assignIssueSchema,
   addCommentSchema,
   setTestCaseResultSchema,
+  listIssuesQuerySchema,
 } from "../schemas/issueSchemas.js";
 
 const issuesRouter = Router();
 
 // Get all issues
-issuesRouter.get("/", listIssues);
+issuesRouter.get("/", validateQuery(listIssuesQuerySchema), listIssues);
 
 // Get one issue
 issuesRouter.get("/:id", getIssueById);

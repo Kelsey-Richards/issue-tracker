@@ -26,3 +26,31 @@ export function validateBody(schema: ZodType) {
     next();
   };
 }
+
+// Checks the query parameters using the schema passed into it
+export function validateQuery(schema: ZodType) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const result = schema.safeParse(req.query);
+
+    // If validation fails, send a 400 error
+    if (!result.success) {
+      return res.status(400).json({
+        error: "ValidationFailed",
+        details: result.error.issues.map((issue) => ({
+          path: issue.path.join("."),
+          message: issue.message,
+        })),
+      });
+    }
+
+    // Replace req.query with the clean, validated data
+    Object.defineProperty(req, "query", {
+      value: result.data,
+      writable: true,
+      configurable: true,
+      enumerable: true,
+    });
+
+    next();
+  };
+}

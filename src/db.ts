@@ -8,21 +8,24 @@ import { Issue } from "./data/issues.js";
 let db: Db;
 
 export async function getDb(): Promise<Db> {
-    const uri = process.env.MONGODB_URI;
+  const uri = process.env.MONGODB_URI;
 
-    if (!uri) {
-        throw new Error("MONGODB_URI is not defined");
-    }
+  if (!uri) {
+    throw new Error("MONGODB_URI is not defined");
+  }
 
-    const client = new MongoClient(uri);
+  const client = new MongoClient(uri);
 
-    await client.connect();
+  await client.connect();
 
-    db = client.db("issueTracker");
+  db = client.db("issueTracker");
 
-    return db;
+  // Creates an index for filtering by status and sorting by date
+  await db.collection("issues").createIndex({ status: 1, createdOn: -1 });
+
+  return db;
 }
 
 export function getIssuesCollection() {
-    return db.collection<Issue>("issues");
+  return db.collection<Issue>("issues");
 }
