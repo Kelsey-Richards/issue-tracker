@@ -58,3 +58,19 @@ export const setTestCaseResultSchema = z.object({
 });
 
 export type SetTestCaseResultInput = z.infer<typeof setTestCaseResultSchema>;
+
+// Validates filters, search, and sorting for GET /issues
+export const listIssuesQuerySchema = z.object({
+  status: z.enum(["open", "in-progress", "closed"]).optional(),
+  priority: z.enum(["low", "medium", "high"]).optional(),
+  classification: z
+    .enum(["unclassified", "approved", "unapproved", "duplicate"])
+    .optional(),
+  assignedTo: z.string().optional(),
+  sort: z.enum(["createdOn", "-createdOn"]).optional(),
+  q: z.string().optional(),
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(50).default(20),
+});
+
+export type ListIssuesQuery = z.infer<typeof listIssuesQuerySchema>;

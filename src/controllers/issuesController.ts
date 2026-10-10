@@ -4,7 +4,7 @@
 // Controller for handling issues in the application
 import { randomUUID } from "crypto";
 import { Request, Response, NextFunction } from "express";
-import { ObjectId } from "mongodb";
+import { Document, ObjectId } from "mongodb";
 
 import { getIssuesCollection } from "../db.js";
 import {
@@ -15,6 +15,7 @@ import {
   AssignIssueInput,
   AddCommentInput,
   SetTestCaseResultInput,
+  ListIssuesQuery,
 } from "../schemas/issueSchemas.js";
 
 // Converts the id to an ObjectId
@@ -27,7 +28,7 @@ function parseId(req: Request, res: Response): ObjectId | undefined {
   }
 }
 
-// List all issues
+// List issues with filters, search, and sorting
 export async function listIssues(
   req: Request,
   res: Response,
@@ -35,9 +36,65 @@ export async function listIssues(
 ) {
   try {
     const issues = getIssuesCollection();
-    const issueList = await issues.find({}).toArray();
+    const query = req.query as unknown as ListIssuesQuery;
 
-    res.status(200).json(issueList);
+    // Build filters from the query parameters
+    const filter: Record<string, unknown> = {};
+
+    if (query.status) filter.status = query.status;
+    if (query.priority) filter.priority = query.priority;
+    if (query.classification) filter.classification = query.classification;
+    if (query.assignedTo) filter["assignedTo.userId"] = query.assignedTo;
+
+    const skip = (query.page - 1) * query.limit;
+
+    // Use Atlas Search when a keyword is provided
+    if (query.q) {
+      const pipeline: Document[] = [
+        {
+          $search: {
+            index: "default",
+            text: {
+              query: query.q,
+              path: ["title", "description"],
+            },
+          },
+        },
+      ];
+
+      if (Object.keys(filter).length > 0) {
+        pipeline.push({ $match: filter });
+      }
+
+      if (query.sort) {
+        const descending = query.sort.startsWith("-");
+        const field = descending ? query.sort.slice(1) : query.sort;
+
+        pipeline.push({
+          $sort: { [field]: descending ? -1 : 1 },
+        });
+      }
+
+      pipeline.push({ $skip: skip }, { $limit: query.limit });
+
+      return res.json(await issues.aggregate(pipeline).toArray());
+    }
+
+    // Regular filtering and sorting without keyword search
+    const cursor = issues.find(filter);
+
+    if (query.sort) {
+      const descending = query.sort.startsWith("-");
+      const field = descending ? query.sort.slice(1) : query.sort;
+
+      cursor.sort({
+        [field]: descending ? -1 : 1,
+      });
+    }
+
+    cursor.skip(skip).limit(query.limit);
+
+    res.json(await cursor.toArray());
   } catch (err) {
     next(err);
   }

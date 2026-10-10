@@ -75,3 +75,17 @@
 - POST /issues/:id/test-cases - PASS
 - PATCH /issues/:id/test-cases/:testCaseId - PASS
 - npx tsc --noEmit - PASS
+
+## Lab 04-04 Search, Filter, Sort, and Pagination Test Results
+
+- GET /issues?status=open returned only issues with status "open" - PASS
+- GET /issues?status=open&priority=high returned only issues matching both filters - PASS
+- GET /issues?sort=-createdOn returned issues newest first - PASS
+- GET /issues?sort=title returned 400 ValidationFailed - PASS
+- GET /issues?q=respond matched an issue where the word appeared only in the description - PASS
+- GET /issues?limit=2 returned exactly two issues - PASS
+- GET /issues?page=2&limit=2 returned the next page of issues - PASS
+- GET /issues?limit=51 returned 400 ValidationFailed - PASS
+- Atlas Search index "default" on the issues collection shows Ready - PASS
+- Compound index { status: 1, createdOn: -1 } was added to the issues collection - PASS
+- npx tsc --noEmit completed with no errors - PASS
