@@ -7,11 +7,7 @@ import debug from "debug";
 
 const log = debug("issue-tracker:request");
 
-export function requestLogger(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
+export function requestLogger(req: Request, res: Response, next: NextFunction) {
   log(`${req.method} ${req.url}`);
   next();
 }
