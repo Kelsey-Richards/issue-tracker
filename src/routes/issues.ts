@@ -17,9 +17,14 @@ import {
   deleteComment,
   addTestCase,
   setTestCaseResult,
+  getTimeLogSummary,
 } from "../controllers/issuesController.js";
 
-import { validateBody, validateQuery } from "../middleware/validate.js";
+import {
+  validateBody,
+  validateQuery,
+  validateParams,
+} from "../middleware/validate.js";
 import { attachCurrentUser } from "../middleware/currentUser.js";
 
 import {
@@ -31,6 +36,7 @@ import {
   addCommentSchema,
   setTestCaseResultSchema,
   listIssuesQuerySchema,
+  timeLogParamsSchema,
 } from "../schemas/issueSchemas.js";
 
 const issuesRouter = Router();
@@ -92,6 +98,13 @@ issuesRouter.patch(
 
 // Delete an issue
 issuesRouter.delete("/:id", deleteIssue);
+
+// Get the total hours worked on an issue
+issuesRouter.get(
+  "/:id/time-log/summary",
+  validateParams(timeLogParamsSchema),
+  getTimeLogSummary,
+);
 
 // Export the router
 export default issuesRouter;
