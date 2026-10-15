@@ -17,6 +17,7 @@ import {
   deleteComment,
   addTestCase,
   setTestCaseResult,
+  addTimeLog,
 } from "../controllers/issuesController.js";
 
 import { validateBody, validateQuery } from "../middleware/validate.js";
@@ -31,6 +32,7 @@ import {
   addCommentSchema,
   setTestCaseResultSchema,
   listIssuesQuerySchema,
+  addTimeLogSchema
 } from "../schemas/issueSchemas.js";
 
 const issuesRouter = Router();
@@ -92,6 +94,14 @@ issuesRouter.patch(
 
 // Delete an issue
 issuesRouter.delete("/:id", deleteIssue);
+
+// Add TimeLog
+issuesRouter.post(
+  "/:id/time-log",
+  attachCurrentUser,
+  validateBody(addTimeLogSchema),
+  addTimeLog
+);
 
 // Export the router
 export default issuesRouter;

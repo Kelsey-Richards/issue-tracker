@@ -74,3 +74,9 @@ export const listIssuesQuerySchema = z.object({
 });
 
 export type ListIssuesQuery = z.infer<typeof listIssuesQuerySchema>;
+
+export const addTimeLogSchema = z.object({
+  hoursWorked: z.number().positive("hoursWorked must be a positive number"),
+});
+
+export type AddTimeLogInput = z.infer<typeof addTimeLogSchema>
