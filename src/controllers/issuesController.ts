@@ -463,9 +463,8 @@ export async function getTimeLogSummary(
   res: Response,
   next: NextFunction,
 ) {
-  const objectId = parseId(req, res);
-
-  if (!objectId) return;
+  // Zod already validated the issue ID
+  const objectId = new ObjectId(req.params.id as string);
 
   try {
     const issues = getIssuesCollection();
