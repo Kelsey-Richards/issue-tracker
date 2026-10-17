@@ -456,3 +456,51 @@ export async function setTestCaseResult(
     next(err);
   }
 }
+
+// Get the total hours worked on an issue
+export async function getTimeLogSummary(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  // Zod already validated the issue ID
+  const objectId = new ObjectId(req.params.id as string);
+
+  try {
+    const issues = getIssuesCollection();
+    const issue = await issues.findOne({ _id: objectId });
+
+    // Return 404 if the issue does not exist
+    if (!issue) {
+      return res.status(404).json({ error: "Issue not found" });
+    }
+
+    // Get the time logs, or use an empty array if none exist
+    const timeLog = issue.timeLog ?? [];
+
+    let totalHours = 0;
+    const hoursByUser = new Map<string, number>();
+
+    // Add up the hours for each user
+    for (const entry of timeLog) {
+      totalHours += entry.hoursWorked;
+
+      const previousHours = hoursByUser.get(entry.userId) ?? 0;
+      hoursByUser.set(entry.userId, previousHours + entry.hoursWorked);
+    }
+
+    // Convert the Map into the required response format
+    const byUser = Array.from(hoursByUser, ([userId, hours]) => ({
+      userId,
+      hours,
+    }));
+
+    res.status(200).json({
+      issueId: objectId.toHexString(),
+      totalHours,
+      byUser,
+    });
+  } catch (err) {
+    next(err);
+  }
+}

@@ -74,3 +74,8 @@ export const listIssuesQuerySchema = z.object({
 });
 
 export type ListIssuesQuery = z.infer<typeof listIssuesQuerySchema>;
+
+// Validates the issue ID for the time-log summary
+export const timeLogParamsSchema = z.object({
+  id: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid issue id"),
+});
