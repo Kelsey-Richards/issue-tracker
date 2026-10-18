@@ -80,3 +80,7 @@ export const addTimeLogSchema = z.object({
 });
 
 export type AddTimeLogInput = z.infer<typeof addTimeLogSchema>
+// Validates the issue ID for the time-log summary
+export const timeLogParamsSchema = z.object({
+  id: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid issue id"),
+});

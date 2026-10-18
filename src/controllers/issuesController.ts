@@ -458,6 +458,7 @@ export async function setTestCaseResult(
   }
 }
 
+// Add hours worked to an issue
 export async function addTimeLog(
   req: Request,
   res: Response,
@@ -470,20 +471,73 @@ export async function addTimeLog(
     const issues = getIssuesCollection();
     const { hoursWorked } = req.body as AddTimeLogInput;
 
+    // Create a new time-log entry
     const newTimeLog = {
       userId: req.user.userId,
-      hoursWorked: hoursWorked,
+      hoursWorked,
       loggedOn: new Date(),
-    }
+    };
+
     const result = await issues.findOneAndUpdate(
       { _id: objectId },
       { $push: { timeLog: newTimeLog } },
       { returnDocument: "after" },
     );
 
-    if (!result) return res.status(404).json({ error: "Issue not found" });
-    res.status(201).json(result)
+    if (!result) {
+      return res.status(404).json({ error: "Issue not found" });
+    }
+
+    res.status(201).json(result);
   } catch (err) {
-    next(err)
+    next(err);
+  }
+}
+
+// Get the total hours worked on an issue
+export async function getTimeLogSummary(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  // Zod already validated the issue ID
+  const objectId = new ObjectId(req.params.id as string);
+
+  try {
+    const issues = getIssuesCollection();
+    const issue = await issues.findOne({ _id: objectId });
+
+    // Return 404 if the issue does not exist
+    if (!issue) {
+      return res.status(404).json({ error: "Issue not found" });
+    }
+
+    // Get the time logs, or use an empty array if none exist
+    const timeLog = issue.timeLog ?? [];
+
+    let totalHours = 0;
+    const hoursByUser = new Map<string, number>();
+
+    // Add up the hours for each user
+    for (const entry of timeLog) {
+      totalHours += entry.hoursWorked;
+
+      const previousHours = hoursByUser.get(entry.userId) ?? 0;
+      hoursByUser.set(entry.userId, previousHours + entry.hoursWorked);
+    }
+
+    // Convert the Map into the required response format
+    const byUser = Array.from(hoursByUser, ([userId, hours]) => ({
+      userId,
+      hours,
+    }));
+
+    res.status(200).json({
+      issueId: objectId.toHexString(),
+      totalHours,
+      byUser,
+    });
+  } catch (err) {
+    next(err);
   }
 }

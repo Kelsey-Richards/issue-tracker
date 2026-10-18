@@ -54,3 +54,23 @@ export function validateQuery(schema: ZodType) {
     next();
   };
 }
+
+// Checks the URL parameters using a Zod schema
+export function validateParams(schema: ZodType) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const result = schema.safeParse(req.params);
+
+    // Return 400 if the parameters are invalid
+    if (!result.success) {
+      return res.status(400).json({
+        error: "ValidationFailed",
+        details: result.error.issues.map((issue) => ({
+          path: issue.path.join("."),
+          message: issue.message,
+        })),
+      });
+    }
+
+    next();
+  };
+}

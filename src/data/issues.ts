@@ -7,10 +7,17 @@ export interface IssueUserRef {
   fullName: string;
 }
 
-// Defines what an issue looks like.
+// Defines what an issue looks like
 export interface Issue {
   title: string;
   description: string;
   status: "open" | "in-progress" | "closed";
   priority: "low" | "medium" | "high";
+
+  // Stores the hours worked on this issue
+  timeLog?: {
+    userId: string;
+    hoursWorked: number;
+    loggedOn: Date;
+  }[];
 }

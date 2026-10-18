@@ -18,9 +18,14 @@ import {
   addTestCase,
   setTestCaseResult,
   addTimeLog,
+  getTimeLogSummary,
 } from "../controllers/issuesController.js";
 
-import { validateBody, validateQuery } from "../middleware/validate.js";
+import {
+  validateBody,
+  validateQuery,
+  validateParams,
+} from "../middleware/validate.js";
 import { attachCurrentUser } from "../middleware/currentUser.js";
 
 import {
@@ -32,7 +37,8 @@ import {
   addCommentSchema,
   setTestCaseResultSchema,
   listIssuesQuerySchema,
-  addTimeLogSchema
+  addTimeLogSchema,
+  timeLogParamsSchema,
 } from "../schemas/issueSchemas.js";
 
 const issuesRouter = Router();
@@ -95,12 +101,19 @@ issuesRouter.patch(
 // Delete an issue
 issuesRouter.delete("/:id", deleteIssue);
 
-// Add TimeLog
+// Add hours worked to an issue
 issuesRouter.post(
   "/:id/time-log",
   attachCurrentUser,
   validateBody(addTimeLogSchema),
-  addTimeLog
+  addTimeLog,
+);
+
+// Get the total hours worked on an issue
+issuesRouter.get(
+  "/:id/time-log/summary",
+  validateParams(timeLogParamsSchema),
+  getTimeLogSummary,
 );
 
 // Export the router
