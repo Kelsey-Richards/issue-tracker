@@ -17,6 +17,7 @@ import {
   deleteComment,
   addTestCase,
   setTestCaseResult,
+  addTimeLog,
   getTimeLogSummary,
 } from "../controllers/issuesController.js";
 
@@ -36,6 +37,7 @@ import {
   addCommentSchema,
   setTestCaseResultSchema,
   listIssuesQuerySchema,
+  addTimeLogSchema,
   timeLogParamsSchema,
 } from "../schemas/issueSchemas.js";
 
@@ -98,6 +100,14 @@ issuesRouter.patch(
 
 // Delete an issue
 issuesRouter.delete("/:id", deleteIssue);
+
+// Add hours worked to an issue
+issuesRouter.post(
+  "/:id/time-log",
+  attachCurrentUser,
+  validateBody(addTimeLogSchema),
+  addTimeLog,
+);
 
 // Get the total hours worked on an issue
 issuesRouter.get(

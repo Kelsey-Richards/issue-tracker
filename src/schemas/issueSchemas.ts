@@ -75,6 +75,11 @@ export const listIssuesQuerySchema = z.object({
 
 export type ListIssuesQuery = z.infer<typeof listIssuesQuerySchema>;
 
+export const addTimeLogSchema = z.object({
+  hoursWorked: z.number().positive("hoursWorked must be a positive number"),
+});
+
+export type AddTimeLogInput = z.infer<typeof addTimeLogSchema>
 // Validates the issue ID for the time-log summary
 export const timeLogParamsSchema = z.object({
   id: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid issue id"),

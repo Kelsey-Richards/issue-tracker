@@ -16,6 +16,7 @@ import {
   AddCommentInput,
   SetTestCaseResultInput,
   ListIssuesQuery,
+  AddTimeLogInput,
 } from "../schemas/issueSchemas.js";
 
 // Converts the id to an ObjectId
@@ -452,6 +453,42 @@ export async function setTestCaseResult(
     }
 
     res.json(result);
+  } catch (err) {
+    next(err);
+  }
+}
+
+// Add hours worked to an issue
+export async function addTimeLog(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  const objectId = parseId(req, res);
+  if (!objectId) return;
+
+  try {
+    const issues = getIssuesCollection();
+    const { hoursWorked } = req.body as AddTimeLogInput;
+
+    // Create a new time-log entry
+    const newTimeLog = {
+      userId: req.user.userId,
+      hoursWorked,
+      loggedOn: new Date(),
+    };
+
+    const result = await issues.findOneAndUpdate(
+      { _id: objectId },
+      { $push: { timeLog: newTimeLog } },
+      { returnDocument: "after" },
+    );
+
+    if (!result) {
+      return res.status(404).json({ error: "Issue not found" });
+    }
+
+    res.status(201).json(result);
   } catch (err) {
     next(err);
   }
