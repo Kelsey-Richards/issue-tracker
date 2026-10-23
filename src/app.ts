@@ -2,6 +2,8 @@
 // Date: 10/10/2026
 
 import express from "express";
+import { toNodeHandler } from "better-auth/node";
+import { auth } from "./auth.js";
 
 import { errorHandler } from "./middleware/errorHandler.js";
 import { requestLogger } from "./middleware/logger.js";
@@ -10,12 +12,18 @@ import issuesRouter from "./routes/issues.js";
 // Create and configure the Express application
 export const app = express();
 
+// Authentication routes must come before express.json()
+app.all("/api/auth/*splat", toNodeHandler(auth));
+
 app.use(express.json());
 app.use(requestLogger);
 
-// Main route
+// Public landing page for the Issue Tracker
 app.get("/", (req, res) => {
-  res.json({ message: "Issue Tracker API is running" });
+  res.status(200).type("html").send(`
+    <h1>Issue Tracker</h1>
+    <p>Welcome to the Issue Tracker API!</p>
+  `);
 });
 
 // Health check route

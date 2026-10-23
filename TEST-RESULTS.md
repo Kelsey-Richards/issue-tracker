@@ -1,31 +1,31 @@
 # TEST RESULTS
 
-| Route | Body | Expected Status | Actual Status | Result |
-|---|---|---:|---:|---|
-| GET /health | — | 200 | 200 | Pass |
-| GET /issues | — | 200 | 200 | Pass |
-| GET /issues/1 | — | 200 | 200 | Pass |
-| GET /issues/999 | — | 404 | 404 | Pass |
-| POST /issues | {"title":"New issue"} | 201 | 201 | Pass |
-| POST /issues | {} | 400 | 400 | Pass |
-| PATCH /issues/1 | {"status":"closed"} | 200 | 200 | Pass |
-| PATCH /issues/999 | {"status":"closed"} | 404 | 404 | Pass |
-| DELETE /issues/2 | — | 204 | 204 | Pass |
-| GET /issues/2 | — | 404 | 404 | Pass |
-| DELETE /issues/999 | — | 404 | 404 | Pass |
+| Route              | Body                  | Expected Status | Actual Status | Result |
+| ------------------ | --------------------- | --------------: | ------------: | ------ |
+| GET /health        | —                     |             200 |           200 | Pass   |
+| GET /issues        | —                     |             200 |           200 | Pass   |
+| GET /issues/1      | —                     |             200 |           200 | Pass   |
+| GET /issues/999    | —                     |             404 |           404 | Pass   |
+| POST /issues       | {"title":"New issue"} |             201 |           201 | Pass   |
+| POST /issues       | {}                    |             400 |           400 | Pass   |
+| PATCH /issues/1    | {"status":"closed"}   |             200 |           200 | Pass   |
+| PATCH /issues/999  | {"status":"closed"}   |             404 |           404 | Pass   |
+| DELETE /issues/2   | —                     |             204 |           204 | Pass   |
+| GET /issues/2      | —                     |             404 |           404 | Pass   |
+| DELETE /issues/999 | —                     |             404 |           404 | Pass   |
 
 ## Lab 03-03 MongoDB Test Results
 
-| Route | Body | Expected Status | Actual Status | Result |
-|---|---|---:|---:|---|
-| GET /issues | — | 200 | 200 | Pass |
-| GET /issues/6ab0327173bd6e350768f8ce | — | 200 | 200 | Pass |
-| GET /issues/3 | — | 400 | 400 | Pass |
-| GET /issues/000000000000000000000000 | — | 404 | 404 | Pass |
-| POST /issues | {"title":"MongoDB Test Issue","description":"Testing POST for Lab 03-03","priority":"medium"} | 201 | 201 | Pass |
-| PATCH /issues/6ab804ec83f2cfceb76945e1 | {"title":"Updated MongoDB Test Issue","priority":"high"} | 200 | 200 | Pass |
-| DELETE /issues/6ab804ec83f2cfceb76945e1 | — | 204 | 204 | Pass |
-| GET /issues/6ab804ec83f2cfceb76945e1 | — | 404 | 404 | Pass |
+| Route                                   | Body                                                                                          | Expected Status | Actual Status | Result |
+| --------------------------------------- | --------------------------------------------------------------------------------------------- | --------------: | ------------: | ------ |
+| GET /issues                             | —                                                                                             |             200 |           200 | Pass   |
+| GET /issues/6ab0327173bd6e350768f8ce    | —                                                                                             |             200 |           200 | Pass   |
+| GET /issues/3                           | —                                                                                             |             400 |           400 | Pass   |
+| GET /issues/000000000000000000000000    | —                                                                                             |             404 |           404 | Pass   |
+| POST /issues                            | {"title":"MongoDB Test Issue","description":"Testing POST for Lab 03-03","priority":"medium"} |             201 |           201 | Pass   |
+| PATCH /issues/6ab804ec83f2cfceb76945e1  | {"title":"Updated MongoDB Test Issue","priority":"high"}                                      |             200 |           200 | Pass   |
+| DELETE /issues/6ab804ec83f2cfceb76945e1 | —                                                                                             |             204 |           204 | Pass   |
+| GET /issues/6ab804ec83f2cfceb76945e1    | —                                                                                             |             404 |           404 | Pass   |
 
 ### Notes
 
@@ -40,13 +40,13 @@
 
 ## Lab 04-01 Zod Validation Test Results
 
-| Route | Body | Expected Status | Actual Status | Result |
-|---|---|---:|---:|---|
-| POST /issues | {"title":"Module 4 Test Issue","description":"Testing Zod validation","stepsToReproduce":"Create an issue using the API","priority":"medium"} | 201 | 201 | Pass |
-| POST /issues | Missing title | 400 | 400 | Pass |
-| POST /issues | Includes fake/custom author | 201 | 201 | Pass |
-| PATCH /issues/6ac01df40a347287faf5cfa6 | {"priority":"high"} | 200 | 200 | Pass |
-| PATCH /issues/6ac01df40a347287faf5cfa6 | {"priority":"urgent"} | 400 | 400 | Pass |
+| Route                                  | Body                                                                                                                                          | Expected Status | Actual Status | Result |
+| -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | --------------: | ------------: | ------ |
+| POST /issues                           | {"title":"Module 4 Test Issue","description":"Testing Zod validation","stepsToReproduce":"Create an issue using the API","priority":"medium"} |             201 |           201 | Pass   |
+| POST /issues                           | Missing title                                                                                                                                 |             400 |           400 | Pass   |
+| POST /issues                           | Includes fake/custom author                                                                                                                   |             201 |           201 | Pass   |
+| PATCH /issues/6ac01df40a347287faf5cfa6 | {"priority":"high"}                                                                                                                           |             200 |           200 | Pass   |
+| PATCH /issues/6ac01df40a347287faf5cfa6 | {"priority":"urgent"}                                                                                                                         |             400 |           400 | Pass   |
 
 ### Notes
 
@@ -102,3 +102,44 @@
 - Lab 04-04 filtering, sorting, validation, pagination, assignedTo filtering, and keyword-search behavior are now covered by automated tests
 - Real Atlas keyword search was previously verified with GET /issues?q=respond and remains the manual check that confirms the Atlas Search index is active
 - API still runs successfully after splitting src/index.ts into src/app.ts and src/index.ts
+
+## Lab 05-01 Authentication Test Results
+
+| Test                                           | Expected Status | Actual Status | Result |
+| ---------------------------------------------- | --------------- | ------------- | ------ |
+| GET /health                                    | 200             | 200           | Pass   |
+| GET /api/auth/get-session (signed out)         | 200, null       | 200, null     | Pass   |
+| POST /api/auth/sign-up/email (valid user)      | 200             | 200           | Pass   |
+| GET /api/auth/get-session (signed in)          | 200             | 200           | Pass   |
+| POST /api/auth/sign-out                        | 200             | 200           | Pass   |
+| GET /api/auth/get-session (after sign-out)     | 200, null       | 200, null     | Pass   |
+| POST /api/auth/sign-in/email (valid password)  | 200             | 200           | Pass   |
+| POST /api/auth/sign-in/email (wrong password)  | 401             | 401           | Pass   |
+| POST /api/auth/sign-up/email (duplicate email) | 422             | 422           | Pass   |
+| POST /api/auth/sign-up/email (short password)  | 400             | 400           | Pass   |
+| POST /api/auth/sign-in/email (missing Origin)  | 403             | 403           | Pass   |
+
+### Notes
+
+- Installed better-auth version 1.7.7.
+- npm audit reported 0 vulnerabilities after fixes.
+- Created a test user successfully through Postman.
+- Sign-up created a session cookie.
+- GET /api/auth/get-session returned the signed-in user's information.
+- Sign-out successfully ended the session.
+- Signing in again created a new session.
+- An incorrect password returned INVALID_EMAIL_OR_PASSWORD.
+- A duplicate email returned USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL.
+- A short password returned PASSWORD_TOO_SHORT.
+- A missing Origin header returned MISSING_OR_NULL_ORIGIN.
+- MongoDB automatically created the user, account, and session collections.
+- The account collection stores a hashed password instead of plain text.
+- The homepage displayed the Issue Tracker welcome message.
+- npx tsc --noEmit completed without errors after adding authentication.
+- GET / returned 200 and displayed the HTML welcome page while signed out - PASS
+- GET / returned 200 and displayed the HTML welcome page while signed in - PASS
+- tests/setup.ts successfully mocked authentication for automated tests.
+- vitest.config.ts successfully loaded the shared test setup.
+- npm test completed successfully - 38 tests passed across 2 files.
+- npx tsc --noEmit completed with no errors - PASS
+- npm run build completed with no errors - PASS

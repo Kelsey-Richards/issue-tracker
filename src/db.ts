@@ -8,6 +8,7 @@ import { Issue } from "./data/issues.js";
 let db: Db;
 
 export async function getDb(): Promise<Db> {
+  if (db) return db; // Reuse the existing database connection
   const uri = process.env.MONGODB_URI;
 
   if (!uri) {
