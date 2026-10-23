@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/Kelsey-Richards/issue-tracker#readme",
   "dependencies": {
+    "better-auth": "1.7.7",
     "debug": "^4.4.3",
     "dotenv": "^18.0.4",
     "express": "^5.2.1",
