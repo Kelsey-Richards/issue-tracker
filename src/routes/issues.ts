@@ -26,7 +26,6 @@ import {
   validateQuery,
   validateParams,
 } from "../middleware/validate.js";
-import { attachCurrentUser } from "../middleware/currentUser.js";
 
 import {
   createIssueSchema,
@@ -50,12 +49,7 @@ issuesRouter.get("/", validateQuery(listIssuesQuerySchema), listIssues);
 issuesRouter.get("/:id", getIssueById);
 
 // Create an issue
-issuesRouter.post(
-  "/",
-  attachCurrentUser,
-  validateBody(createIssueSchema),
-  createIssue,
-);
+issuesRouter.post("/", validateBody(createIssueSchema), createIssue);
 
 // Update an issue
 issuesRouter.patch("/:id", validateBody(updateIssueSchema), updateIssue);
@@ -78,18 +72,13 @@ issuesRouter.patch(
 issuesRouter.patch("/:id/assign", validateBody(assignIssueSchema), assignIssue);
 
 // Add a comment
-issuesRouter.post(
-  "/:id/comments",
-  attachCurrentUser,
-  validateBody(addCommentSchema),
-  addComment,
-);
+issuesRouter.post("/:id/comments", validateBody(addCommentSchema), addComment);
 
 // Delete a comment
 issuesRouter.delete("/:id/comments/:commentId", deleteComment);
 
 // Add a test case
-issuesRouter.post("/:id/test-cases", attachCurrentUser, addTestCase);
+issuesRouter.post("/:id/test-cases", addTestCase);
 
 // Mark a test case as passed or failed
 issuesRouter.patch(
@@ -102,12 +91,7 @@ issuesRouter.patch(
 issuesRouter.delete("/:id", deleteIssue);
 
 // Add hours worked to an issue
-issuesRouter.post(
-  "/:id/time-log",
-  attachCurrentUser,
-  validateBody(addTimeLogSchema),
-  addTimeLog,
-);
+issuesRouter.post("/:id/time-log", validateBody(addTimeLogSchema), addTimeLog);
 
 // Get the total hours worked on an issue
 issuesRouter.get(

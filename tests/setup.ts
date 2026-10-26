@@ -1,12 +1,17 @@
 import { vi } from "vitest";
 
-// Use fake authentication during automated tests
-// This prevents tests from needing real secrets or MongoDB
+// Pretend authentication is successful during tests
 vi.mock("../src/auth.js", () => ({
   auth: {
     handler: vi.fn(async () => new Response(null, { status: 404 })),
     api: {
-      getSession: vi.fn().mockResolvedValue(null),
+      // Simulate a signed-in user
+      getSession: vi.fn().mockResolvedValue({
+        user: {
+          id: "6aad780ce470879405ff14af",
+          name: "Miyabi Hoshimi",
+        },
+      }),
     },
   },
 }));

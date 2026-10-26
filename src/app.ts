@@ -4,6 +4,7 @@
 import express from "express";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./auth.js";
+import { requireAuth } from "./middleware/requireAuth.js";
 
 import { errorHandler } from "./middleware/errorHandler.js";
 import { requestLogger } from "./middleware/logger.js";
@@ -31,8 +32,13 @@ app.get("/health", (req, res) => {
   res.status(200).json({ status: "ok" });
 });
 
+// Returns information about the currently signed-in user
+app.get("/api/me", requireAuth, (req, res) => {
+  res.json(req.user);
+});
+
 // Issue routes
-app.use("/issues", issuesRouter);
+app.use("/issues", requireAuth, issuesRouter);
 
 // Error handling
 app.use(errorHandler);
