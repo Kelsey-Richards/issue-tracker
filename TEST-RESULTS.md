@@ -143,3 +143,38 @@
 - npm test completed successfully - 38 tests passed across 2 files.
 - npx tsc --noEmit completed with no errors - PASS
 - npm run build completed with no errors - PASS
+
+## Lab 05-02 — Protect Your Routes
+
+### Authentication Tests
+
+| Test                                     | Actual Result                 | Status |
+| ---------------------------------------- | ----------------------------- | ------ |
+| Signed out: GET /issues                  | 401 Unauthorized              | PASS   |
+| Signed out: GET /issues/:id              | 401 Unauthorized              | PASS   |
+| Signed out: POST /issues                 | 401 Unauthorized              | PASS   |
+| Signed out: GET /api/me                  | 401 Unauthorized              | PASS   |
+| Public: GET /                            | 200 OK                        | PASS   |
+| Public: GET /health                      | 200 OK                        | PASS   |
+| Public: GET /api/auth/get-session        | 200 OK, null                  | PASS   |
+| Signed in: GET /api/me                   | 200 OK, real user information | PASS   |
+| Signed in: GET /issues                   | 200 OK                        | PASS   |
+| Signed in: POST /issues with fake author | 201 Created, real author used | PASS   |
+
+### Break-It Tests
+
+| Test                                    | Actual Result                      | Status |
+| --------------------------------------- | ---------------------------------- | ------ |
+| Access issues after signing out         | 401 Unauthorized                   | PASS   |
+| Place requireAuth after issuesRouter    | 200 OK while signed out            | PASS   |
+| Restore requireAuth before issuesRouter | 401 Unauthorized                   | PASS   |
+| Temporarily restore attachCurrentUser   | Pretend user overwrote real author | PASS   |
+| Remove attachCurrentUser again          | Middleware removed                 | PASS   |
+
+### Final Verification
+
+| Test             | Actual Result    | Status |
+| ---------------- | ---------------- | ------ |
+| npm test         | 42 tests passed  | PASS   |
+| npx tsc --noEmit | No errors        | PASS   |
+| npm run build    | Build successful | PASS   |
