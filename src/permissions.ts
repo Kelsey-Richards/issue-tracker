@@ -45,3 +45,10 @@ export const roles = {
 
 export type RoleName = keyof typeof roles;
 export const roleNames = Object.keys(roles) as [RoleName, ...RoleName[]];
+
+// Roles that can be assigned to an issue
+export const assignableRoles = [
+  "developer",
+  "businessAnalyst",
+  "qualityAnalyst",
+] as const satisfies readonly RoleName[];

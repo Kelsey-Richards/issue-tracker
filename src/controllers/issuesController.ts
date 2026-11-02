@@ -1,6 +1,3 @@
-// Student Name: Kelsey Richards
-// Date: 9/8/2026
-
 // Controller for handling issues in the application
 import { randomUUID } from "crypto";
 import { Request, Response, NextFunction } from "express";
@@ -178,13 +175,22 @@ export async function updateIssue(
     // Body was already checked by Zod
     const updates = req.body as UpdateIssueInput;
 
-    const result = await issues.updateOne({ _id: objectId }, { $set: updates });
+    const updatedIssue = await issues.findOneAndUpdate(
+      { _id: objectId },
+      {
+        // Stamp audit fields from the signed-in user
+        $set: {
+          ...updates,
+          updatedBy: req.user,
+          updatedAt: new Date(),
+        },
+      },
+      { returnDocument: "after" },
+    );
 
-    if (result.matchedCount === 0) {
+    if (!updatedIssue) {
       return res.status(404).json({ error: "Issue not found" });
     }
-
-    const updatedIssue = await issues.findOne({ _id: objectId });
 
     res.status(200).json(updatedIssue);
   } catch (err) {
@@ -234,10 +240,19 @@ export async function setIssueStatus(
   try {
     const issues = getIssuesCollection();
     const { status } = req.body as SetStatusInput;
+    const now = new Date();
 
     const result = await issues.findOneAndUpdate(
       { _id: objectId },
-      { $set: { status } },
+      {
+        $set: {
+          status,
+          updatedBy: req.user,
+          updatedAt: now,
+          // Record who closed the issue only when closing it
+          ...(status === "closed" ? { closedBy: req.user, closedAt: now } : {}),
+        },
+      },
       { returnDocument: "after" },
     );
 
@@ -267,7 +282,13 @@ export async function classifyIssue(
 
     const result = await issues.findOneAndUpdate(
       { _id: objectId },
-      { $set: { classification } },
+      {
+        $set: {
+          classification,
+          updatedBy: req.user,
+          updatedAt: new Date(),
+        },
+      },
       { returnDocument: "after" },
     );
 
@@ -303,6 +324,8 @@ export async function assignIssue(
             userId,
             fullName,
           },
+          updatedBy: req.user,
+          updatedAt: new Date(),
         },
       },
       { returnDocument: "after" },
