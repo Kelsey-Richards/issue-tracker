@@ -43,6 +43,7 @@ describe("authentication", () => {
     expect(res.body).toEqual({
       userId: "u1",
       fullName: "Dana Dev",
+      role: "none",
     });
   });
 

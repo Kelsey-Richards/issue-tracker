@@ -20,6 +20,7 @@ export async function requireAuth(
 
   // Save the real signed-in user's information
   req.user = { userId: session.user.id, fullName: session.user.name };
+  req.role = session.user.role ?? "none"; // Save the user's role
 
   // Allow the request to continue
   next();
