@@ -291,3 +291,58 @@
 - closedAt and updatedAt were recorded correctly.
 
 Result: PASSED
+
+## Lab 05-04 — Live Deployment and Final Results
+
+### Google Cloud Run Deployment
+
+Live Service:
+https://issue-tracker-855858103219.us-central1.run.app
+
+- Configured BETTER_AUTH_URL.
+- Configured CLIENT_ORIGIN.
+- Generated a new BETTER_AUTH_SECRET.
+- Kept the existing MongoDB connection.
+- Cloud Run service update completed successfully.
+- GitHub pull request merged into main.
+- Google Cloud Build reported successful.
+
+### Live Postman Testing
+
+| Test                             | Actual Result                      |
+| -------------------------------- | ---------------------------------- |
+| GET /health                      | 200 OK                             |
+| GET /issues without signing in   | 401 Unauthorized                   |
+| Eve signs in                     | 200 OK                             |
+| Secure session cookie name found | __Secure-better-auth.session_token |
+| GET /api/me                      | 200 OK                             |
+| Nate signs in                    | 200 OK                             |
+| Nate attempts to create an issue | 403 Forbidden                      |
+| Eve creates a new issue          | 201 Created                        |
+| Bo attempts to edit Eve's issue  | 403 Forbidden                      |
+| Eve edits her own issue          | 200 OK                             |
+| Eve signs out                    | 200 OK                             |
+| GET /issues after signing out    | 401 Unauthorized                   |
+
+Live Test Issue ID:
+6ae801eeb2df322ef516b2db
+
+### MongoDB Test Account Cleanup
+
+Removed the six temporary test users:
+Eve, Bo, Quinn, Pat, Tia, and Nate.
+
+| Collection | Records Deleted |
+| ---------- | --------------- |
+| session    | 35              |
+| account    | 6               |
+| user       | 6               |
+
+Cleanup completed successfully.
+
+### Final Automated Tests
+
+- 70 tests passed across 6 test files.
+- TypeScript compilation passed.
+- Application build passed.
+- Ownership and audit trail tests passed.
