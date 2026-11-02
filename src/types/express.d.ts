@@ -1,11 +1,12 @@
-import { IssueUserRef } from "../data/issues.js";
+import type { Issue, IssueUserRef } from "../data/issues.js";
 
 // Add a user property to Express Request
 declare global {
   namespace Express {
     interface Request {
       user: IssueUserRef;
-      role: string; // Stores the signed-in user's role
+      role: string;
+      issue: Issue;
     }
   }
 }
