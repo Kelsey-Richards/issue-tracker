@@ -257,3 +257,37 @@
 - Verified that unauthorized users receive 401 or 403 responses.
 - Restored all temporary changes made during security testing.
 - All 51 automated tests passed successfully.
+
+## Lab 05-04 — Ownership, Audit Trail, and Going Live
+
+### Automated Tests
+
+- 70 tests passed across 6 test files.
+- TypeScript compilation passed.
+- npm run build passed.
+
+### Postman Testing
+
+- Eve edits her own issue: 200 OK
+- Bo attempts to edit Eve's issue: 403 Forbidden
+- Bo attempts to change an unassigned-to-him issue's status: 403 Forbidden
+- Eve changes her assigned issue's status: 200 OK
+- Bo closes an issue with his Business Analyst permission: 200 OK
+- Audit trail records Bo as the person who closed the issue.
+- Assignment to Nate (ineligible role): 400 Bad Request
+- Assignment to Quinn QA: 200 OK
+- Quinn creates a test case: 201 Created
+- Quinn updates the test case result: 200 OK
+- Quinn creates a comment: 201 Created
+- Bo attempts to delete Quinn's comment: 403 Forbidden
+- Quinn deletes her own comment: 200 OK
+
+### Break-It Test — Fake Audit Information
+
+- Submitted a request with a forged closedBy value.
+- Request returned 200 OK.
+- Application ignored the forged identity.
+- closedBy and updatedBy correctly showed Bo Analyst.
+- closedAt and updatedAt were recorded correctly.
+
+Result: PASSED
