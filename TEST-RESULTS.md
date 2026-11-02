@@ -178,3 +178,82 @@
 | npm test         | 42 tests passed  | PASS   |
 | npx tsc --noEmit | No errors        | PASS   |
 | npm run build    | Build successful | PASS   |
+
+## Lab 05-03 — Roles and Permissions
+
+### Role Setup and Authentication Tests
+
+| Test                                              | Actual Result                 | Status |
+| ------------------------------------------------- | ----------------------------- | ------ |
+| New user signs up without an assigned role        | Default role is "user"        | PASS   |
+| Technical Manager role assigned to Tia in MongoDB | Role updated successfully     | PASS   |
+| Tia signs in and checks GET /api/me               | 200 OK, technicalManager role | PASS   |
+| Tia assigns Developer role to Eve                 | 200 OK                        | PASS   |
+| Tia assigns Business Analyst role to Bo           | 200 OK                        | PASS   |
+| Tia assigns Quality Analyst role to Quinn         | 200 OK                        | PASS   |
+| Tia assigns Product Manager role to Pat           | 200 OK                        | PASS   |
+| Tia tries to assign invalid role "wizard"         | 400 Bad Request               | PASS   |
+| Tia tries to change her own role                  | 400 Bad Request               | PASS   |
+| Tia tries to change an unknown user's role        | 404 Not Found                 | PASS   |
+| Nate signs in without an assigned project role    | 200 OK                        | PASS   |
+| Nate accesses GET /issues                         | 200 OK                        | PASS   |
+| Nate tries POST /issues                           | 403 Forbidden                 | PASS   |
+
+### Permission Tests
+
+| Test                                       | Actual Result    | Status |
+| ------------------------------------------ | ---------------- | ------ |
+| Eve (Developer) creates an issue           | 201 Created      | PASS   |
+| Eve tries to classify an issue             | 403 Forbidden    | PASS   |
+| Bo (Business Analyst) classifies an issue  | 200 OK           | PASS   |
+| Eve tries to close an issue                | 403 Forbidden    | PASS   |
+| Bo closes an issue                         | 200 OK           | PASS   |
+| Eve changes issue status to in-progress    | 200 OK           | PASS   |
+| Eve tries to assign an issue               | 403 Forbidden    | PASS   |
+| Pat (Product Manager) assigns an issue     | 200 OK           | PASS   |
+| Eve tries to add a test case               | 403 Forbidden    | PASS   |
+| Quinn (Quality Analyst) adds a test case   | 201 Created      | PASS   |
+| Bo tries to update a test case result      | 403 Forbidden    | PASS   |
+| Quinn updates a test case result           | 200 OK           | PASS   |
+| Pat tries to delete an issue               | 403 Forbidden    | PASS   |
+| Tia tries to delete an issue               | 403 Forbidden    | PASS   |
+| Nate tries to add a comment                | 403 Forbidden    | PASS   |
+| Signed-out user tries to classify an issue | 401 Unauthorized | PASS   |
+
+### Break-It Tests
+
+| Test                                                 | Actual Result                         | Status |
+| ---------------------------------------------------- | ------------------------------------- | ------ |
+| Misspell "close" as "clsoe" in a permission guard    | TypeScript detected an error (TS2345) | PASS   |
+| Restore the correct permission spelling              | TypeScript check passed               | PASS   |
+| Temporarily remove the classify permission guard     | Eve classified an issue with 200 OK   | PASS   |
+| Restore the classify permission guard                | Eve received 403 Forbidden again      | PASS   |
+| Nate tries to promote himself to Technical Manager   | 403 Forbidden                         | PASS   |
+| New user tries to sign up with technicalManager role | 400 Bad Request                       | PASS   |
+| Quinn updates a test case as Quality Analyst         | 200 OK                                | PASS   |
+| Change Quinn's role to Developer in MongoDB          | Role updated successfully             | PASS   |
+| Quinn retries without signing in again               | 403 Forbidden                         | PASS   |
+| Restore Quinn's Quality Analyst role                 | Role restored successfully            | PASS   |
+
+### Final Verification
+
+| Test                      | Actual Result                  | Status |
+| ------------------------- | ------------------------------ | ------ |
+| tests/warmup.test.ts      | 5 tests passed                 | PASS   |
+| tests/issues.test.ts      | 33 tests passed                | PASS   |
+| tests/auth.test.ts        | 4 tests passed                 | PASS   |
+| tests/permissions.test.ts | 9 tests passed                 | PASS   |
+| npm test                  | 51 tests passed across 4 files | PASS   |
+| npx tsc --noEmit          | No TypeScript errors           | PASS   |
+| npm run build             | Build successful               | PASS   |
+
+### Notes
+
+- Added five application roles using Better Auth permissions.
+- Protected issue routes with role-based permission checks.
+- Added a protected route for changing user roles.
+- Updated the shared authentication mock for automated tests.
+- Added nine new automated permission tests.
+- Verified that unauthorized users receive 401 or 403 responses.
+- Restored all temporary changes made during security testing.
+- All 51 automated tests passed successfully.

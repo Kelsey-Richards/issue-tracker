@@ -1,6 +1,3 @@
-// Student Name: Kelsey Richards
-// Date: 10/10/2026
-
 import express from "express";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./auth.js";
@@ -9,6 +6,7 @@ import { requireAuth } from "./middleware/requireAuth.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { requestLogger } from "./middleware/logger.js";
 import issuesRouter from "./routes/issues.js";
+import { usersRouter } from "./routes/users.js";
 
 // Create and configure the Express application
 export const app = express();
@@ -34,11 +32,14 @@ app.get("/health", (req, res) => {
 
 // Returns information about the currently signed-in user
 app.get("/api/me", requireAuth, (req, res) => {
-  res.json(req.user);
+  res.json({ ...req.user, role: req.role });
 });
 
 // Issue routes
 app.use("/issues", requireAuth, issuesRouter);
+
+// Require users to sign in before accessing user routes
+app.use("/users", requireAuth, usersRouter);
 
 // Error handling
 app.use(errorHandler);

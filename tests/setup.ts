@@ -12,6 +12,15 @@ vi.mock("../src/auth.js", () => ({
           name: "Miyabi Hoshimi",
         },
       }),
+
+      // Allow permission checks in our older tests
+      userHasPermission: vi.fn().mockResolvedValue({ success: true }),
+
+      // Simulate updating a user's role
+      setRole: vi.fn().mockResolvedValue({
+        id: "6aad780ce470879405ff14af",
+        role: "developer",
+      }),
     },
   },
 }));
