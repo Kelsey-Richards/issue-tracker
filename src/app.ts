@@ -6,6 +6,7 @@ import { requireAuth } from "./middleware/requireAuth.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { requestLogger } from "./middleware/logger.js";
 import issuesRouter from "./routes/issues.js";
+import triageRouter from "./routes/triage.js";
 import { usersRouter } from "./routes/users.js";
 
 // Create and configure the Express application
@@ -37,6 +38,9 @@ app.get("/api/me", requireAuth, (req, res) => {
 
 // Issue routes
 app.use("/issues", requireAuth, issuesRouter);
+
+// Allow signed-in users to request AI suggestions
+app.use("/triage", requireAuth, triageRouter);
 
 // Require users to sign in before accessing user routes
 app.use("/users", requireAuth, usersRouter);
