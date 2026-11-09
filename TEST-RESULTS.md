@@ -346,3 +346,57 @@ Cleanup completed successfully.
 - TypeScript compilation passed.
 - Application build passed.
 - Ownership and audit trail tests passed.
+
+## Lab 5.5-01 — AI Triage Assistant Test Results
+
+### Setup and Verification
+
+- Installed AI SDK and Groq packages successfully.
+- Created Groq API key and configured .env.
+- First AI agent successfully used the get_time tool.
+- npx tsc --noEmit completed with no errors - PASS
+- npm run build completed successfully - PASS
+
+### Postman Testing
+
+- POST /issues created a test issue - 201 Created - PASS
+- POST /triage returned an AI suggestion - 200 OK - PASS
+- AI classified the issue as "duplicate".
+- AI suggested "medium" priority.
+- AI reason: "Same misalignment issue reported".
+- AI returned duplicateOf: 6add86cac59fd4694f6cc52d
+- GET /issues/:id confirmed the suggested ID exists - 200 OK - PASS
+
+### Notes
+
+- The AI found an older issue titled "Login button misaligned".
+- The suggested ID matched the older issue, not the new test issue.
+- The AI response matched the required Zod schema.
+- The AI successfully searched existing issues and returned a suggestion.
+
+### Manual Break-It Tests
+
+- Signed-out user received 401 Unauthorized - PASS
+- Prompt injection returned a valid AI suggestion with 200 OK - PASS
+- GET /issues confirmed existing issue information remained unchanged.
+- Invalid Groq model returned 500 Internal Server Error - PASS
+- Two requests sent close together both returned 200 OK - PASS
+- Empty request body returned 400 Bad Request - PASS
+- Description over 1,500 characters returned 400 Bad Request - PASS
+- Restored the correct Groq model after testing.
+
+### Automated Break-It Tests
+
+- Removed regex escaping: "escapes the model's words before they reach the database" failed. Put back, tests green.
+- Changed MAX_SEARCH_STEPS from 3 to 10: "stops after 3 search trips instead of looping forever" failed. Put back, tests green.
+- Removed issue tags: "puts the user's text in issue tags, not the system prompt" failed. Put back, tests green.
+- Removed requireAuth: "is 401 when signed out, and never calls the assistant" failed. Put back, tests green.
+- Changed 502 to 500: Both "answers 502" tests failed. Put back, tests green.
+
+### Final Automated Test Results
+
+- tests/triageAgent.test.ts - 9 tests passed
+- tests/triage.test.ts - 8 tests passed
+- Full test suite - 87 tests passed across 8 files - PASS
+- All five intentional break-it tests completed successfully.
+- All original code restored.
