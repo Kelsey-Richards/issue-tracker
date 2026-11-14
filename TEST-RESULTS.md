@@ -400,3 +400,23 @@ Cleanup completed successfully.
 - Full test suite - 87 tests passed across 8 files - PASS
 - All five intentional break-it tests completed successfully.
 - All original code restored.
+
+## Lab 06-02 — Part 1 Test Results
+
+### Automated Tests
+
+- 4 test files passed.
+- 31 of 31 tests passed.
+- TypeScript check completed without errors.
+
+### Manual Browser Testing
+
+- Signed out: "Please sign in first" displayed correctly.
+- Signed in: All 14 issues loaded from MongoDB.
+- Network tab: Two GET /issues requests appeared in development.
+- API stopped: "Request failed (502)" displayed correctly.
+- API restarted: Signed back in and all 14 issues loaded again.
+
+### Result
+
+Part 1 passed all automated tests and manual browser checks.
