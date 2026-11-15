@@ -420,3 +420,32 @@ Cleanup completed successfully.
 ### Result
 
 Part 1 passed all automated tests and manual browser checks.
+
+## Lab 06-02 — Part 2 Test Results
+
+### Automated Tests
+
+- Frontend: 63 tests passed across 8 test files — PASS
+- Backend: 87 tests passed across 8 test files — PASS
+- Updated the backend Vitest configuration to run only backend tests.
+- Frontend and backend test suites now run separately without errors.
+
+### Manual Browser Testing
+
+- Created "Testing React Add Issue" using the React form — PASS
+- Issue count increased from 14 to 15 — PASS
+- Attempted to change an unassigned issue's status and received 403 — PASS
+- Assigned the issue to Eve Dev using Tia Tech — PASS
+- Eve changed the issue status from open to in-progress — PASS
+- Refreshed the page and confirmed the status remained in-progress — PASS
+- Clicked Delete, then Cancel; the issue remained — PASS
+- Attempted deletion without permission and received 403 — PASS
+- Temporarily added issue:delete permission to technicalManager to test successful deletion, then restored the original permissions — PASS
+- Tia successfully deleted the test issue after rebuilding the backend — PASS
+- Issue count decreased from 15 to 14 — PASS
+- Submitted the Add Issue form with empty required fields; all three validation messages appeared — PASS
+- Confirmed an invalid form did not send a POST /issues request — PASS
+
+### Result
+
+Part 2 passed all 63 frontend tests and manual create, status update, validation, and delete checks. The backend also passed all 87 automated tests.

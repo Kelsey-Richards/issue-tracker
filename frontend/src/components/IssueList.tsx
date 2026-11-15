@@ -1,10 +1,12 @@
 import { useState } from "react";
-import type { Issue, StatusFilter } from "../types";
+import type { Issue, Status, StatusFilter } from "../types";
 import { IssueCard } from "./IssueCard";
 
 type IssueListProps = {
   issues: Issue[];
   onSelect?: (id: string) => void;
+  onStatusChange?: (id: string, status: Status) => void;
+  onDelete?: (id: string) => void;
 };
 
 const filters: StatusFilter[] = ["all", "open", "in-progress", "closed"];
@@ -15,7 +17,12 @@ function isStatusFilter(value: string): value is StatusFilter {
 }
 
 // Display issues and allow filtering by status.
-export function IssueList({ issues, onSelect }: IssueListProps) {
+export function IssueList({
+  issues,
+  onSelect,
+  onStatusChange,
+  onDelete,
+}: IssueListProps) {
   const [filter, setFilter] = useState<StatusFilter>("all");
 
   function handleFilterChange(e: React.ChangeEvent<HTMLSelectElement>) {
@@ -50,7 +57,12 @@ export function IssueList({ issues, onSelect }: IssueListProps) {
         <ul>
           {shown.map((issue) => (
             <li key={issue._id}>
-              <IssueCard issue={issue} onSelect={onSelect} />
+              <IssueCard
+                issue={issue}
+                onSelect={onSelect}
+                onStatusChange={onStatusChange}
+                onDelete={onDelete}
+              />
             </li>
           ))}
         </ul>
