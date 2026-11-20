@@ -400,3 +400,121 @@ Cleanup completed successfully.
 - Full test suite - 87 tests passed across 8 files - PASS
 - All five intentional break-it tests completed successfully.
 - All original code restored.
+
+## Lab 06-02 — Part 1 Test Results
+
+### Automated Tests
+
+- 4 test files passed.
+- 31 of 31 tests passed.
+- TypeScript check completed without errors.
+
+### Manual Browser Testing
+
+- Signed out: "Please sign in first" displayed correctly.
+- Signed in: All 14 issues loaded from MongoDB.
+- Network tab: Two GET /issues requests appeared in development.
+- API stopped: "Request failed (502)" displayed correctly.
+- API restarted: Signed back in and all 14 issues loaded again.
+
+### Result
+
+Part 1 passed all automated tests and manual browser checks.
+
+## Lab 06-02 — Part 2 Test Results
+
+### Automated Tests
+
+- Frontend: 63 tests passed across 8 test files — PASS
+- Backend: 87 tests passed across 8 test files — PASS
+- Updated the backend Vitest configuration to run only backend tests.
+- Frontend and backend test suites now run separately without errors.
+
+### Manual Browser Testing
+
+- Created "Testing React Add Issue" using the React form — PASS
+- Issue count increased from 14 to 15 — PASS
+- Attempted to change an unassigned issue's status and received 403 — PASS
+- Assigned the issue to Eve Dev using Tia Tech — PASS
+- Eve changed the issue status from open to in-progress — PASS
+- Refreshed the page and confirmed the status remained in-progress — PASS
+- Clicked Delete, then Cancel; the issue remained — PASS
+- Attempted deletion without permission and received 403 — PASS
+- Temporarily added issue:delete permission to technicalManager to test successful deletion, then restored the original permissions — PASS
+- Tia successfully deleted the test issue after rebuilding the backend — PASS
+- Issue count decreased from 15 to 14 — PASS
+- Submitted the Add Issue form with empty required fields; all three validation messages appeared — PASS
+- Confirmed an invalid form did not send a POST /issues request — PASS
+
+### Result
+
+Part 2 passed all 63 frontend tests and manual create, status update, validation, and delete checks. The backend also passed all 87 automated tests.
+
+## Lab 06-02 — Part 3 Test Results
+
+### React Router Browser Testing
+
+- View button opened the Edit page with existing issue information — PASS
+- Editing an issue created by another user returned 403 — PASS
+- Editing an issue created by the signed-in user saved successfully — PASS
+- Refreshing the Edit page kept the issue information — PASS
+- Invalid URL displayed the Not Found page — PASS
+
+### Express Fallback Testing
+
+- Built React frontend loaded through Express on port 3000 — PASS
+- Refreshing /edit/:id with the fallback enabled worked — PASS
+- Commenting out the fallback caused Cannot GET /edit/:id — PASS
+- Restored the fallback, rebuilt, and confirmed the Edit page loaded again — PASS
+
+### Lab 06-02 — Break-It Test #1: API Error Handling
+
+- Changed `if (!res.ok)` to `if (false)` in `frontend/src/api.ts`.
+- Result: 10 tests failed across 5 test files.
+- The application failed to handle API errors correctly.
+- Restored `if (!res.ok)`.
+- Ran the tests again: 74 tests passed across 9 files.
+- Result: PASS — Automated tests detected the intentional mistake.
+
+### Lab 06-02 — Break-It Test #2: Delete List Update
+
+- Temporarily removed `replaceIssues` from `handleDelete` in `frontend/src/pages/IssueListPage.tsx`.
+- Result: 1 test failed and 73 passed.
+- Failing test: `deletes an issue after the person confirms`.
+- The test expected the issue count to change from 4 to 3, but the screen still showed 4 issues.
+- Restored the original `replaceIssues` code.
+- Ran tests again: 74 passed across 9 test files.
+- Result: PASS — Automated tests detected the missing list update.
+
+### Lab 06-02 — Break-It Test #3: React Router
+
+- Temporarily changed the Edit page route from `/edit/:id` to `/issues/:id` in `frontend/src/App.tsx`.
+- Also changed the navigation path to `/issues/:id`.
+- Result: 7 tests failed and 67 passed.
+- All 7 failures occurred in `App.test.tsx`.
+- Tests detected that `/edit/:id` no longer worked and that `/issues/:id` was incorrectly being used as a frontend route.
+- Restored both original `/edit/:id` paths.
+- Ran tests again: 74 passed across 9 test files.
+- Result: PASS — Automated tests detected the incorrect React Router paths.
+
+### Lab 06-02 — Break-It Test #4: Wrong Issue ID
+
+- Temporarily changed `issue._id` to `issue.id` in `frontend/src/components/IssueCard.tsx`.
+- TypeScript detected error TS2339 because `id` does not exist on the Issue type.
+- Result: 3 tests failed and 71 passed.
+- The View button passed `undefined` instead of the correct issue ID.
+- Restored the original `issue._id` property.
+- Ran tests again: 74 passed across 9 test files.
+- Ran the TypeScript checker again: no errors.
+- Result: PASS — TypeScript and automated tests detected the incorrect property.
+
+### Lab 06-02 — Break-It Test #5: Form Submission
+
+- Temporarily removed `e.preventDefault()` from `frontend/src/components/AddIssueForm.tsx`.
+- Result: All 74 automated tests still passed.
+- The terminal displayed warnings: `Not implemented: HTMLFormElement's requestSubmit() method`.
+- Without `e.preventDefault()`, a real browser may reload the page during form submission.
+- Restored the original `e.preventDefault()` line.
+- Ran tests again: 74 passed across 9 test files.
+- The `requestSubmit()` warnings disappeared.
+- Result: Automated tests did not catch the mistake, demonstrating why browser testing is also important.
