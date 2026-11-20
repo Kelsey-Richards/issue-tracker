@@ -17,7 +17,12 @@ function messageFor(err: unknown): string {
     : 'Could not reach the server'
 }
 
-export function IssueListPage() {
+// Allow the parent page to handle clicking View
+type IssueListPageProps = {
+  onSelect?: (id: string) => void
+}
+
+export function IssueListPage({ onSelect }: IssueListPageProps) {
   const [state, setState] = useState<LoadState>({ kind: "loading" });
   const [actionError, setActionError] = useState<string | null>(null)
 
@@ -102,6 +107,7 @@ export function IssueListPage() {
       ) : (
         <IssueList
           issues={state.issues}
+          onSelect={onSelect}
           onStatusChange={handleStatusChange}
           onDelete={handleDelete}
         />
