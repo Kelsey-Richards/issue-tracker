@@ -518,3 +518,7 @@ Part 2 passed all 63 frontend tests and manual create, status update, validation
 - Ran tests again: 74 passed across 9 test files.
 - The `requestSubmit()` warnings disappeared.
 - Result: Automated tests did not catch the mistake, demonstrating why browser testing is also important.
+
+## Lab 06-03 — Responsive Layout Test
+
+On desktop, my Issue Tracker displayed two columns of styled issue cards with the navigation beside the title. On mobile, the cards stacked into one column and the navigation moved below the title. Everything fit on the smaller screen.
