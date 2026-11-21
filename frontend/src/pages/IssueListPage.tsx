@@ -6,104 +6,95 @@ import { IssueList } from '../components/IssueList'
 import type { Issue, Status } from '../types'
 
 type LoadState =
-  | { kind: "loading" }
-  | { kind: "error"; message: string }
-  | { kind: "loaded"; issues: Issue[] };
+  | { kind: 'loading' }
+  | { kind: 'error'; message: string }
+  | { kind: 'loaded'; issues: Issue[] }
 
-// Get a readable error message from the API.
+// Use the same styling for all error messages.
+const alertClass =
+  'rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive'
+
 function messageFor(err: unknown): string {
-  return err instanceof ApiError
-    ? err.message
-    : 'Could not reach the server'
+  return err instanceof ApiError ? err.message : 'Could not reach the server'
 }
 
-// Allow the parent page to handle clicking View
 type IssueListPageProps = {
   onSelect?: (id: string) => void
 }
 
 export function IssueListPage({ onSelect }: IssueListPageProps) {
-  const [state, setState] = useState<LoadState>({ kind: "loading" });
+  const [state, setState] = useState<LoadState>({ kind: 'loading' })
   const [actionError, setActionError] = useState<string | null>(null)
 
-  // Load issues from our API when the page opens.
   useEffect(() => {
-    let ignore = false;
-
+    let ignore = false
     const load = async () => {
       try {
-        const issues = await listIssues();
-        if (!ignore) setState({ kind: "loaded", issues });
+        const issues = await listIssues()
+        if (!ignore) setState({ kind: 'loaded', issues })
       } catch (err) {
-        if (!ignore) {
-          setState({ kind: 'error', message: messageFor(err) })
-        }
+        if (!ignore) setState({ kind: 'error', message: messageFor(err) })
       }
-    };
-
-    load();
-
-    // Ignore responses if the component is no longer active.
+    }
+    load()
     return () => {
-      ignore = true;
-    };
-  }, []);
+      ignore = true
+    }
+  }, [])
 
-  // Update the issue list using its latest data.
   function replaceIssues(change: (issues: Issue[]) => Issue[]) {
     setState((current) =>
       current.kind === 'loaded'
         ? { kind: 'loaded', issues: change(current.issues) }
-        : current
+        : current,
     )
   }
 
-  // Add a new issue after the API confirms it was created.
   async function handleAdd(draft: IssueDraft) {
     const created = await createIssue(draft)
     replaceIssues((issues) => [...issues, created])
   }
 
-  // Change an issue's status after the API confirms the update.
   async function handleStatusChange(id: string, status: Status) {
     setActionError(null)
-
     try {
       const updated = await setStatus(id, status)
-      replaceIssues((issues) =>
-        issues.map((i) => (i._id === id ? updated : i))
-      )
+      replaceIssues((issues) => issues.map((i) => (i._id === id ? updated : i)))
     } catch (err) {
       setActionError(messageFor(err))
     }
   }
 
-  // Remove an issue only after the API confirms deletion.
   async function handleDelete(id: string) {
     setActionError(null)
-
     try {
       await deleteIssue(id)
-      replaceIssues((issues) =>
-        issues.filter((i) => i._id !== id)
-      )
+      replaceIssues((issues) => issues.filter((i) => i._id !== id))
     } catch (err) {
       setActionError(messageFor(err))
     }
   }
 
-  if (state.kind === 'loading') return <p role="status">Loading issues…</p>
-  if (state.kind === 'error') return <p role="alert">{state.message}</p>
+  if (state.kind === 'loading') {
+    return <p role="status" className="text-sm text-muted-foreground">Loading issues…</p>
+  }
 
-  // Show the form, any errors, and our issue list.
+  if (state.kind === 'error') {
+    return <p role="alert" className={alertClass}>{state.message}</p>
+  }
+
   return (
-    <>
+    <div className="flex flex-col gap-6">
       <AddIssueForm onAdd={handleAdd} />
 
-      {actionError && <p role="alert">{actionError}</p>}
+      {actionError && (
+        <p role="alert" className={alertClass}>{actionError}</p>
+      )}
 
       {state.issues.length === 0 ? (
-        <p>No issues yet. Add the first one.</p>
+        <p className="text-sm text-muted-foreground">
+          No issues yet. Add the first one.
+        </p>
       ) : (
         <IssueList
           issues={state.issues}
@@ -112,7 +103,6 @@ export function IssueListPage({ onSelect }: IssueListPageProps) {
           onDelete={handleDelete}
         />
       )}
-    </>
+    </div>
   )
 }
-

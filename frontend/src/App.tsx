@@ -1,4 +1,3 @@
-
 import { Outlet, Route, Routes, useNavigate } from 'react-router'
 import { NavBar } from './components/NavBar'
 import { IssueEditPage } from './pages/IssueEditPage'
@@ -9,11 +8,19 @@ import { NotFoundPage } from './pages/NotFoundPage'
 function Layout() {
   return (
     <>
-      <header>
-        <h1>Issue Tracker</h1>
-        <NavBar />
+      <header className="border-b">
+        <div className="mx-auto flex max-w-4xl flex-col gap-2 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-sm font-medium text-primary">BugHive</p>
+            <h1 className="text-xl font-semibold">Issue Tracker</h1>
+            <p className="text-sm text-muted-foreground">
+              Spot it. Track it. Fix it.
+            </p>
+          </div>
+          <NavBar />
+        </div>
       </header>
-      <main>
+      <main className="mx-auto max-w-4xl p-4">
         <Outlet />
       </main>
     </>

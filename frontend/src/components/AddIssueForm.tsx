@@ -1,141 +1,154 @@
-import { useState } from "react";
-import { ApiError } from "../api";
-import type { IssueDraft } from "../api";
-import type { Priority } from "../types";
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Controller, useForm } from 'react-hook-form'
+import type { Resolver } from 'react-hook-form'
+import { Button } from '@/components/ui/button'
+import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field'
+import { Input } from '@/components/ui/input'
+import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select'
+import { Textarea } from '@/components/ui/textarea'
+import { ApiError } from '../api'
+import type { IssueDraft } from '../api'
+import { createIssueSchema } from '../schemas/issueForm'
 
 type AddIssueFormProps = {
-  onAdd: (draft: IssueDraft) => Promise<void> | void;
-  initial?: IssueDraft;
-  submitLabel?: string;
-  clearOnSuccess?: boolean;
-};
-
-const priorities: Priority[] = ["low", "medium", "high"];
-
-function isPriority(value: string): value is Priority {
-  return priorities.some((p) => p === value);
+  onAdd: (draft: IssueDraft) => Promise<void> | void
+  initial?: IssueDraft
+  submitLabel?: string
+  clearOnSuccess?: boolean
 }
 
-// Store validation messages for the required fields.
-type Problems = {
-  title?: string;
-  description?: string;
-  stepsToReproduce?: string;
-};
+const emptyDraft: IssueDraft = {
+  title: '',
+  description: '',
+  stepsToReproduce: '',
+  priority: 'medium',
+}
 
+// Trim spaces before checking the form against our backend schema.
+const resolver: Resolver<IssueDraft> = (values, context, options) => {
+  const trimmed = {
+    ...values,
+    title: values.title.trim(),
+    description: values.description.trim(),
+    stepsToReproduce: values.stepsToReproduce.trim(),
+  }
+  return zodResolver(createIssueSchema)(trimmed, context, options)
+}
 
-// Keep track of the information entered into the form.
+const fieldNames = ['title', 'description', 'stepsToReproduce', 'priority'] as const
+type FieldName = (typeof fieldNames)[number]
+
+// Check whether an error belongs to one of our form fields.
+function isFieldName(value: string): value is FieldName {
+  return fieldNames.some((name) => name === value)
+}
+
 export function AddIssueForm({
   onAdd,
-  initial,
+  initial = emptyDraft,
   submitLabel = 'Add issue',
   clearOnSuccess = true,
 }: AddIssueFormProps) {
-  const [title, setTitle] = useState(initial?.title ?? '')
-  const [description, setDescription] = useState(initial?.description ?? '')
-  const [steps, setSteps] = useState(initial?.stepsToReproduce ?? '')
-  const [priority, setPriority] = useState<Priority>(initial?.priority ?? 'medium')
-  const [problems, setProblems] = useState<Problems>({})
-  const [serverMessage, setServerMessage] = useState<string | null>(null)
-  const [busy, setBusy] = useState(false)
+  const form = useForm<IssueDraft>({ resolver, defaultValues: initial })
 
-  // Update the priority when someone selects a different option.
-  function handlePriorityChange(e: React.ChangeEvent<HTMLSelectElement>) {
-    if (isPriority(e.target.value)) {
-      setPriority(e.target.value)
-    }
-  }
-
-  // Check the form and send the issue when someone clicks Add.
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    setServerMessage(null)
-
-    // Remove extra spaces from the information entered.
-    const draft: IssueDraft = {
-      title: title.trim(),
-      description: description.trim(),
-      stepsToReproduce: steps.trim(),
-      priority,
-    }
-
-    // Check that all required fields have information.
-    const found: Problems = {}
-
-    if (draft.title === '') found.title = 'Title is required'
-    if (draft.description === '') found.description = 'Description is required'
-    if (draft.stepsToReproduce === '') {
-      found.stepsToReproduce = 'Steps to reproduce are required'
-    }
-
-    setProblems(found)
-    if (Object.keys(found).length > 0) return
-
-    // Send the issue and handle success or errors.
-    setBusy(true)
-
+  // Send valid issue data to the API and display any server errors.
+  async function onValid(draft: IssueDraft) {
     try {
       await onAdd(draft)
-
-      if (clearOnSuccess) {
-        setTitle('')
-        setDescription('')
-        setSteps('')
-      }
+      if (clearOnSuccess) form.reset(emptyDraft)
     } catch (err) {
-      setServerMessage(
-        err instanceof ApiError ? err.message : 'Could not reach the server'
-      )
-    } finally {
-      setBusy(false)
+      if (!(err instanceof ApiError)) {
+        form.setError('root.server', { message: 'Could not reach the server' })
+        return
+      }
+
+      // Show server validation problems next to the correct input.
+      let placed = false
+      for (const detail of err.details) {
+        if (isFieldName(detail.path)) {
+          form.setError(detail.path, { type: 'server', message: detail.message })
+          placed = true
+        }
+      }
+      if (!placed) form.setError('root.server', { message: err.message })
     }
   }
 
-  // Display the form fields and validation messages.
+  const rootMessage = form.formState.errors.root?.server?.message
+
   return (
-    <form onSubmit={handleSubmit}>
-      <label>
-        Title
-        <input value={title} onChange={(e) => setTitle(e.target.value)} />
-      </label>
-      {problems.title && <p role="alert">{problems.title}</p>}
-
-      <label>
-        Description
-        <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
+    <form onSubmit={form.handleSubmit(onValid)} noValidate className="rounded-lg border p-4">
+      <FieldGroup>
+        <Controller
+          name="title"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
+              <FieldLabel htmlFor="issue-title">Title</FieldLabel>
+              <Input {...field} id="issue-title" aria-invalid={fieldState.invalid} />
+              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+            </Field>
+          )}
         />
-      </label>
-      {problems.description && <p role="alert">{problems.description}</p>}
 
-      <label>
-        Steps to reproduce
-        <textarea
-          value={steps}
-          onChange={(e) => setSteps(e.target.value)}
+        <Controller
+          name="description"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
+              <FieldLabel htmlFor="issue-description">Description</FieldLabel>
+              <Textarea
+                {...field}
+                id="issue-description"
+                aria-invalid={fieldState.invalid}
+              />
+              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+            </Field>
+          )}
         />
-      </label>
-      {problems.stepsToReproduce && (
-        <p role="alert">{problems.stepsToReproduce}</p>
-      )}
 
-      <label>
-        Priority
-        <select value={priority} onChange={handlePriorityChange}>
-          {priorities.map((p) => (
-            <option key={p} value={p}>
-              {p}
-            </option>
-          ))}
-        </select>
-      </label>
+        <Controller
+          name="stepsToReproduce"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
+              <FieldLabel htmlFor="issue-steps">Steps to reproduce</FieldLabel>
+              <Textarea
+                {...field}
+                id="issue-steps"
+                aria-invalid={fieldState.invalid}
+              />
+              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+            </Field>
+          )}
+        />
 
-      {serverMessage && <p role="alert">{serverMessage}</p>}
+        <Controller
+          name="priority"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
+              <FieldLabel htmlFor="issue-priority">Priority</FieldLabel>
+              <NativeSelect
+                {...field}
+                id="issue-priority"
+                aria-invalid={fieldState.invalid}
+              >
+                <NativeSelectOption value="low">low</NativeSelectOption>
+                <NativeSelectOption value="medium">medium</NativeSelectOption>
+                <NativeSelectOption value="high">high</NativeSelectOption>
+              </NativeSelect>
+              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+            </Field>
+          )}
+        />
 
-      <button type="submit" disabled={busy}>
-        {submitLabel}
-      </button>
+        {rootMessage && <FieldError>{rootMessage}</FieldError>}
+
+        <Button type="submit" disabled={form.formState.isSubmitting}>
+          {submitLabel}
+        </Button>
+      </FieldGroup>
     </form>
   )
 }

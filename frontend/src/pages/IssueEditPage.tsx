@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router'
 import { ApiError, getIssue, updateIssue } from '../api'
@@ -53,7 +52,7 @@ export function IssueEditPage() {
   }
 
   return (
-    <section>
+    <section className="flex flex-col gap-4">
       <h2>Edit issue</h2>
       <Link to="/">Back to all issues</Link>
 
