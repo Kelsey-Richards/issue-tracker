@@ -522,3 +522,72 @@ Part 2 passed all 63 frontend tests and manual create, status update, validation
 ## Lab 06-03 — Responsive Layout Test
 
 On desktop, my Issue Tracker displayed two columns of styled issue cards with the navigation beside the title. On mobile, the cards stacked into one column and the navigation moved below the title. Everything fit on the smaller screen.
+
+## Lab 06-03 — Break-It Tests
+
+### Test 1 — Remove Tailwind Import
+
+- **Change:** Temporarily removed `@import "tailwindcss";` from `frontend/src/index.css`.
+- **Browser result:** BugHive lost its card borders, grid layout, button styling, and spacing. The issues appeared in a long vertical list.
+- **Automated tests:** All 76 tests passed across 9 test files.
+- **Conclusion:** Automated tests did not detect the visual styling problems.
+
+### Test 2 — Remove Vite Import Alias
+
+- **Change:** Temporarily removed the `resolve.alias` section from `frontend/vite.config.ts`.
+- **Result:** 7 test files failed to start, 2 passed, and 12 individual tests passed.
+- **Errors:** Vite could not resolve imports such as `@/components/ui/field`, `@/lib/utils`, and `@/components/ui/card`.
+- **Conclusion:** Vite needs the `@` alias to find our frontend components. My results differed slightly from the professor's example, which reported 6 failing files.
+
+### Test 3 — Remove TypeScript Import Alias
+
+- **Change:** Temporarily removed the `"paths"` setting from `frontend/tsconfig.app.json`.
+- **TypeScript result:** 14 errors across 5 files, mostly TS2307 errors about missing `@/` imports, plus one TS7006 error.
+- **Automated tests:** All 76 tests passed across 9 test files.
+- **Conclusion:** Vite could still resolve the imports, but TypeScript could not. Both tools need their own alias configuration.
+
+### Test 4 — Remove Trim from Form Validation
+
+- **Change:** Temporarily removed the three `.trim()` calls from the resolver in `AddIssueForm.tsx`.
+- **Result:** 74 tests passed and 2 failed across 9 test files.
+- **Failed tests:** `treats spaces only as empty` and `calls onAdd with trimmed text and the chosen priority`.
+- **Conclusion:** Without `.trim()`, the form accepts spaces as text and sends values with unnecessary spaces to the API.
+
+### Test 5 — Remove Server Field Error Loop
+
+- **Change:** Temporarily removed the `for (const detail of err.details)` loop from `AddIssueForm.tsx`.
+- **Result:** 75 tests passed and 1 failed across 9 test files.
+- **Failed test:** `puts the SERVER's field problems next to the right boxes (the server checks again)`.
+- **Conclusion:** Without the loop, server validation errors appear at the bottom of the form instead of beside the correct input fields.
+
+### Test 6 — Disconnect Title Input from React Hook Form
+
+- **Change:** Temporarily removed `{...field}` from the Title input in `AddIssueForm.tsx`.
+- **Result:** 60 tests passed and 16 failed across 9 test files.
+- **Failed files:** `AddIssueForm.test.tsx` (9 failures), `IssueListPage.actions.test.tsx` (4 failures), and `App.test.tsx` (3 failures).
+- **Conclusion:** Without `{...field}`, React Hook Form cannot track the Title input. The form treats the title as empty, preventing issues from being added or edited correctly.
+
+## Lab 06-03 — Manual Browser Tests
+
+1. **Empty form:** Submitted the form with empty fields. Validation messages appeared next to the required fields.
+2. **Spaces-only title:** Entered only spaces in the Title field. The form correctly rejected the title.
+3. **Correcting errors:** Entered valid text after a validation error. The error message disappeared.
+4. **Adding an issue:** Submitted a valid issue. The new issue appeared in the list, and the form cleared.
+5. **Editing an issue:** Clicked View on an existing issue. The edit form loaded the issue's information, and Save changes worked.
+
+All five browser tests passed.
+
+## Final Checks
+
+- `npm test` — 76 tests passed across 9 test files.
+- `npx tsc --noEmit -p tsconfig.app.json` — No TypeScript errors.
+- `npm run build` — Production build succeeded.
+
+## Shared Zod Schema Test
+
+- **Change:** Temporarily changed the Title validation message in `src/schemas/issueSchemas.ts` from "title is required" to "Please give the issue a title".
+- **Result:** The new validation message appeared in the frontend form.
+- **Conclusion:** The frontend and backend use the same Zod schema, so validation rules only need to be updated in one place.
+- **Restored:** Changed the validation message back to "title is required" after testing.
+
+**Status:** Passed.
