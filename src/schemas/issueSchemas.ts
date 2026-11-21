@@ -1,6 +1,3 @@
-// Student Name: Kelsey Richards
-// Date: 9/29/2026
-
 import { z } from "zod";
 
 // Validates the information a client can send when creating an issue

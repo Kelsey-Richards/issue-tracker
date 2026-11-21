@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { issueSchema } from "./types";
 import type { Issue, Status } from "./types";
+import type { CreateIssueInput } from "./schemas/issueForm";
 
 type FieldProblem = { path: string; message: string };
 
@@ -66,12 +67,7 @@ function withBody(method: string, body: unknown): RequestInit {
 }
 
 // The four fields someone fills out when creating an issue.
-export type IssueDraft = {
-  title: string;
-  description: string;
-  stepsToReproduce: string;
-  priority: Issue["priority"];
-};
+export type IssueDraft = CreateIssueInput;
 
 // Get the issues from our backend.
 export function listIssues(): Promise<Issue[]> {
